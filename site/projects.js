@@ -402,13 +402,6 @@ window.CUSTOM=[
     "height": 960
    },
    {
-    "src": "img/mwxw7jji/9bbc9208-f220-43ad-b496-296381c321a1.gif",
-    "alt": "",
-    "file": 0,
-    "width": 1280,
-    "height": 960
-   },
-   {
     "src": "img/mwxw7jji/a94fc3d6-5a5c-42a9-a067-c2a49f9b0eb3.png",
     "alt": "",
     "file": 0,
@@ -416,11 +409,11 @@ window.CUSTOM=[
     "height": 1200
    },
    {
-    "src": "img/mwxw7jji/0d26f633-0181-4b35-bdf5-9aa1d06deea2.png",
+    "src": "img/mwxw7jji/9bbc9208-f220-43ad-b496-296381c321a1.gif",
     "alt": "",
     "file": 0,
-    "width": 1600,
-    "height": 998
+    "width": 1280,
+    "height": 960
    }
   ],
   "logo": "img/mwxw7jji/e47e2acf-4007-4d7b-8724-4076b42002da.png",
