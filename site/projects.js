@@ -270,12 +270,12 @@ window.CUSTOM=[
   "pwa": "",
   "device": "phone",
   "folder": "1",
-  "desc": "",
   "description": "Thinkinbrain — идейник для мыслей, которые приходят в самый неожиданный момент. Открываешь приложение, записываешь идею в пару строк и возвращаешься к ней позже, когда есть время её развить. Разрабатывал приложения для максимального удобства при записи текста. Есть возможность записать текст с помощью микрофона. Так же проработано взаимодействие с человеком через визуальную составляющую.",
   "descriptionHeading": "",
   "section": "design",
-  "titleColor": "#fe3434",
-  "descriptionColor": "#4f4f4f",
+  "backgroundColor": "#610000",
+  "titleColor": "#ffffff",
+  "descriptionColor": "#ffffff",
   "gallery": [
    {
     "src": "img/design-template-1/1qe4p8zf.gif",
