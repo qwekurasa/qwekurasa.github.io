@@ -390,24 +390,6 @@ window.CUSTOM=[
   "features": []
  },
  {
-  "id": "mwxlqopx",
-  "name": "poster p.2",
-  "type": "",
-  "created": "",
-  "stack": "",
-  "platforms": "",
-  "link": "",
-  "pwa": "",
-  "device": "phone",
-  "folder": "1",
-  "description": "",
-  "descriptionHeading": "",
-  "section": "llm",
-  "gallery": [],
-  "shots": [],
-  "features": []
- },
- {
   "id": "mwxlqtec",
   "name": "poster p.3",
   "type": "",
