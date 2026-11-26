@@ -2,198 +2,217 @@
   function mount(root, media) {
     if (!media.length) return () => {};
     const stage = root.querySelector('.design-carousel-stage');
-    const motion = matchMedia('(prefers-reduced-motion: reduce)');
-    // A two-image loop also needs a copy on each side of the active card.
-    const items = media.length === 2 ? [...media, ...media] : media;
-    const count = items.length;
-    const wrap = value => ((value % count) + count) % count;
-    const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-    let width = 0, height = 0, angle = 0, target = 0, direction = 1;
-    let frame = 0, timer = 0, drag = null, ignoreClick = false, visible = false;
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const step = Math.PI / 4;
+    const stripCount = 15;
+    const speed = 1 / 1050;
+    const multiple = media.length > 1;
+    const count = multiple ? Math.ceil(6 / media.length) * media.length : 1;
+    let radius = 0, width = 0, position = 0, velocity = 0, active = -1;
+    let frame = 0, last = 0, visible = false, drag = null, turn = null, ignoreClick = false;
+    let resumeAt = 0;
 
-    const slides = items.map(({ src, alt, width: sourceWidth, height: sourceHeight }, i) => {
+    const wrap = value => ((value % count) + count) % count;
+    const offsetFor = (index, current) => wrap(index - current + count / 2) - count / 2;
+    const slides = Array.from({ length:count }, (_,index) => {
+      const {src,alt,width:sourceWidth,height:sourceHeight}=media[index % media.length];
+      const label = document.createElement('textarea');
+      label.innerHTML = alt;
       const card = document.createElement('button');
       card.type = 'button';
       card.className = 'design-slide';
-      const image = new Image();
-      const label = document.createElement('textarea');
-      label.innerHTML = alt;
-      image.alt = label.value;
-      image.draggable = false;
-      image.decoding = 'async';
-      card.setAttribute('aria-label', label.value || 'Изображение ' + (i % media.length + 1));
-      card.append(image);
-      stage.append(card);
-      card.addEventListener('click', () => {
-        const side = Number(card.dataset.side);
-        if (side) go(target + side);
+      card.setAttribute('aria-label',label.value || 'Изображение ' + (index % media.length + 1));
+      card.addEventListener('click',() => {
+        const offset = offsetFor(index,Math.round(position));
+        if (offset) go(Math.round(position) + offset);
       });
+      stage.append(card);
       const ratio = sourceWidth / sourceHeight;
-      const slide = { card, image, src, ratio: ratio > 0 && Number.isFinite(ratio) ? ratio : 1 };
-      image.addEventListener('load', () => {
-        if (!image.naturalWidth || !image.naturalHeight || !stage.isConnected) return;
-        slide.ratio = image.naturalWidth / image.naturalHeight;
-        resize();
-      }, { once: true });
-      return slide;
+      return {card,src,alt:label.value,ratio:Number.isFinite(ratio) && ratio > 0 ? ratio : 1,strips:[]};
     });
 
-    function resize() {
-      width = stage.clientWidth;
-      height = stage.clientHeight;
-      const maxWidth = Math.max(0, Math.min(width * .62, 680));
-      const maxHeight = Math.max(0, height * .94);
-      for (const slide of slides) {
-        const innerHeight = Math.min(maxHeight, maxWidth / slide.ratio);
-        slide.width = innerHeight * slide.ratio;
-        slide.card.style.width = slide.width + 'px';
-        slide.card.style.height = innerHeight + 'px';
+    function addStrips(slide) {
+      const imageCount = multiple ? stripCount : 1;
+      for (let i=0;i<imageCount;i++) {
+        const strip = document.createElement('span');
+        strip.className = 'design-slide-strip';
+        const image = new Image();
+        image.alt = i===0 ? slide.alt : '';
+        image.draggable = false;
+        image.src = slide.src;
+        strip.append(image);
+        slide.card.append(strip);
+        slide.strips.push({strip,image});
       }
+      const image = slide.strips[0].image;
+      const fitImage = () => {
+        if (!image.naturalHeight || !stage.isConnected) return;
+        slide.ratio = image.naturalWidth / image.naturalHeight;
+        sizeSlide(slide);
+      };
+      if (image.complete) fitImage();
+      else image.addEventListener('load',fitImage,{once:true});
+      sizeSlide(slide);
+    }
+
+    function sizeSlide(slide) {
+      const height = Math.min(stage.clientHeight * .88,width / slide.ratio);
+      const imageWidth = height * slide.ratio;
+      slide.card.style.width = imageWidth + 'px';
+      slide.card.style.height = height + 'px';
+      const strips = slide.strips.length;
+      const arc = multiple && radius ? imageWidth / radius / strips : 0;
+      const stripWidth = arc ? 2 * radius * Math.tan(arc / 2) : imageWidth;
+      slide.strips.forEach(({strip,image},i) => {
+        const theta = (i + .5 - strips / 2) * arc;
+        const overlap = i===strips-1 ? 0 : .55;
+        strip.style.width = stripWidth + overlap + 'px';
+        strip.style.transform = 'translate3d(' + (radius*Math.sin(theta)-stripWidth/2) +
+          'px,0,' + (radius*(Math.cos(theta)-1)) + 'px) rotateY(' + theta + 'rad)';
+        image.style.width = imageWidth + 'px';
+        image.style.left = -i * imageWidth / strips + 'px';
+      });
+    }
+
+    function resize() {
+      width = Math.min(stage.clientWidth * .48,380);
+      radius = width / (step * .95);
+      slides.forEach(sizeSlide);
       draw();
     }
 
-    function offsetFor(index, current) {
-      const forward = wrap(index - current);
-      const backward = forward - count;
-      if (forward === -backward) return direction > 0 ? forward : backward;
-      return forward < -backward ? forward : backward;
-    }
-
     function draw() {
-      const base = Math.floor(angle), fraction = angle - base;
-      const leftWidth = slides[wrap(base)].width;
-      const centerWidth = leftWidth + (slides[wrap(base + 1)].width - leftWidth) * fraction;
-      slides.forEach((slide, index) => {
-        const offset = offsetFor(index, angle);
-        const slot = clamp(offset, -2, 2);
-        const depth = Math.abs(slot);
-        const yaw = -slot * 34;
-        const radians = yaw * Math.PI / 180;
-        const z = -depth * 168;
-        // Bound the projected card corners so the frame stays inside the stage while turning.
-        const nearEdge = z + Math.abs(Math.sin(radians)) * slide.width / 2;
-        const magnification = 900 / (900 - nearEdge);
-        const halfCard = Math.abs(Math.cos(radians)) * slide.width / 2;
-        const maxShift = Math.max(0, (width / 2 - 4) / magnification - halfCard);
-        const shift = Math.sign(slot) * Math.min(depth * (centerWidth * .43 + slide.width * .38), maxShift);
-        const opacity = depth < 1 ? 1 - depth * .37 : .63 * (1 - Math.min(1, (depth - 1) * 2));
-        if (depth <= 1.5 && !slide.image.hasAttribute('src')) slide.image.src = slide.src;
-        slide.card.style.opacity = opacity;
-        slide.card.style.zIndex = Math.round(100 - depth * 40);
-        slide.card.style.transform = 'translate3d(' + shift + 'px,0,' + z + 'px) rotateY(' + yaw + 'deg)';
+      const nearest = Math.round(position);
+      slides.forEach((slide,index) => {
+        const angle = offsetFor(index,position)*step;
+        const show = Math.abs(angle) < 1.62;
+        slide.card.style.visibility = show ? 'visible' : 'hidden';
+        if (show) {
+          if (!slide.strips.length) addStrips(slide);
+          const x = radius*Math.sin(angle);
+          const z = radius*(Math.cos(angle)-1);
+          slide.card.style.transform = 'translate3d(' + x + 'px,0,' + z + 'px) rotateY(' + angle + 'rad)';
+          slide.card.style.zIndex = Math.round(150-Math.abs(angle)*50);
+        }
+        if (active!==nearest) {
+          const offset = offsetFor(index,nearest);
+          slide.card.setAttribute('aria-hidden',String(Math.abs(offset)>2));
+          slide.card.setAttribute('aria-disabled',String(offset===0));
+          slide.card.tabIndex = offset && Math.abs(offset)<=2 ? 0 : -1;
+          if (offset && Math.abs(offset)<=2) slide.card.dataset.side=offset;
+          else delete slide.card.dataset.side;
+        }
       });
+      active=nearest;
     }
 
-    function updateControls() {
-      slides.forEach(({ card }, index) => {
-        const offset = offsetFor(index, target);
-        const side = Math.abs(offset) === 1;
-        card.setAttribute('aria-hidden', String(Math.abs(offset) > 1));
-        card.setAttribute('aria-disabled', String(offset === 0));
-        card.tabIndex = side ? 0 : -1;
-        if (side) card.dataset.side = offset;
-        else delete card.dataset.side;
-      });
+    function tick(now) {
+      frame=0;
+      const dt=last ? Math.min(now-last,40) : 0;
+      last=now;
+      if (turn) {
+        const t=Math.min((now-turn.since)/460,1);
+        position=turn.from+(turn.to-turn.from)*(1-Math.pow(1-t,3));
+        if (t===1) turn=null;
+      } else if (!drag && !reducedMotion.matches) {
+        const target=now>=resumeAt ? speed : 0;
+        velocity+=(target-velocity)*(1-Math.exp(-dt/250));
+        position+=velocity*dt;
+      }
+      draw();
+      schedule();
     }
 
     function schedule() {
-      clearTimeout(timer);
-      if (count < 2 || !visible || document.hidden || motion.matches || drag) return;
-      timer = setTimeout(() => go(target + 1), 3000);
+      cancelAnimationFrame(frame);
+      frame=0;
+      if (visible && !document.hidden && (turn || (!drag && !reducedMotion.matches))) {
+        frame=requestAnimationFrame(tick);
+      } else last=0;
     }
 
-    function go(next) {
-      cancelAnimationFrame(frame);
-      if (next !== target) direction = Math.sign(next - target);
-      target = next;
-      updateControls();
-      const start = angle;
-      if (motion.matches || Math.abs(start - target) < .001) {
-        angle = target;
+    function go(to) {
+      velocity=0;
+      resumeAt=performance.now()+850;
+      if (reducedMotion.matches) {
+        position=to;
         draw();
-      } else {
-        const started = performance.now();
-        function turn(now) {
-          const t = clamp((now - started) / 580, 0, 1);
-          const eased = t * t * (3 - 2 * t);
-          angle = start + (target - start) * eased;
-          draw();
-          if (t < 1) frame = requestAnimationFrame(turn);
-        }
-        frame = requestAnimationFrame(turn);
-      }
+      } else turn={from:position,to,since:performance.now()};
       schedule();
     }
 
     resize();
-    updateControls();
-    const sizeObserver = new ResizeObserver(resize);
+    const sizeObserver=new ResizeObserver(resize);
     sizeObserver.observe(stage);
-    if (count < 2) return () => sizeObserver.disconnect();
+    if (!multiple) return () => sizeObserver.disconnect();
 
     stage.classList.add('is-draggable');
-    stage.tabIndex = 0;
-    stage.addEventListener('pointerdown', event => {
-      if (!event.isPrimary || event.button !== 0) return;
-      ignoreClick = false;
-      drag = { pointer: event.pointerId, x: event.clientX, angle, moved: false };
-      clearTimeout(timer);
+    stage.tabIndex=0;
+    stage.addEventListener('pointerdown',event => {
+      if (!event.isPrimary || event.button!==0) return;
+      ignoreClick=false;
+      drag={id:event.pointerId,x:event.clientX,lastX:event.clientX,time:performance.now(),from:position,moved:false,velocity:0};
+      velocity=0;
+      turn=null;
+      schedule();
     });
-    stage.addEventListener('pointermove', event => {
-      if (drag?.pointer !== event.pointerId) return;
-      const delta = event.clientX - drag.x;
+    stage.addEventListener('pointermove',event => {
+      if (drag?.id!==event.pointerId) return;
+      const delta=event.clientX-drag.x;
       if (!drag.moved) {
-        if (Math.abs(delta) < 6) return;
-        cancelAnimationFrame(frame);
-        drag.angle = angle;
-        drag.moved = true;
+        if (Math.abs(delta)<5) return;
+        drag.moved=true;
         stage.setPointerCapture(event.pointerId);
         stage.classList.add('is-dragging');
       }
-      direction = delta < 0 ? 1 : -1;
-      const distance = Math.max(80, width * .28);
-      angle = drag.angle - clamp(delta / distance, -2, 2);
+      const now=performance.now();
+      const distance=Math.max(65,width*.92);
+      drag.velocity=-(event.clientX-drag.lastX)/distance/Math.max(8,now-drag.time);
+      drag.lastX=event.clientX;
+      drag.time=now;
+      position=drag.from-delta/distance;
       draw();
     });
     function endDrag(event) {
-      if (drag?.pointer !== event.pointerId) return;
-      const { moved, angle: start } = drag;
-      drag = null;
+      if (drag?.id!==event.pointerId) return;
+      if (drag.moved) {
+        ignoreClick=true;
+        if (!reducedMotion.matches && performance.now()-drag.time<110 && event.type==='pointerup') {
+          velocity=Math.max(-.007,Math.min(.007,drag.velocity));
+        }
+      }
+      drag=null;
       stage.classList.remove('is-dragging');
-      if (!moved) { schedule(); return; }
-      ignoreClick = true;
-      const delta = angle - start;
-      const next = Math.round(angle + (Math.abs(delta) > .16 ? Math.sign(delta) * .34 : 0));
-      go(next);
+      resumeAt=performance.now()+700;
+      schedule();
     }
-    stage.addEventListener('pointerup', endDrag);
-    stage.addEventListener('pointercancel', endDrag);
-    stage.addEventListener('lostpointercapture', endDrag);
-    stage.addEventListener('pointerleave', event => { if (!drag?.moved) endDrag(event); });
-    stage.addEventListener('click', event => {
+    stage.addEventListener('pointerup',endDrag);
+    stage.addEventListener('pointercancel',endDrag);
+    stage.addEventListener('lostpointercapture',endDrag);
+    stage.addEventListener('pointerleave',event => { if (!drag?.moved) endDrag(event); });
+    stage.addEventListener('click',event => {
       if (!ignoreClick || !event.detail) return;
       event.preventDefault();
       event.stopPropagation();
-      ignoreClick = false;
-    }, true);
-    root.addEventListener('keydown', event => {
-      if (!['ArrowRight', 'ArrowLeft'].includes(event.key)) return;
+      ignoreClick=false;
+    },true);
+    root.addEventListener('keydown',event => {
+      if (!['ArrowLeft','ArrowRight'].includes(event.key)) return;
       event.preventDefault();
-      go(target + (event.key === 'ArrowRight' ? 1 : -1));
+      go(Math.round(position)+(event.key==='ArrowRight' ? 1 : -1));
     });
-    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; schedule(); });
+
+    const observer=new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;schedule();});
     observer.observe(stage);
-    document.addEventListener('visibilitychange', schedule);
-    motion.addEventListener('change', schedule);
+    document.addEventListener('visibilitychange',schedule);
+    reducedMotion.addEventListener('change',schedule);
     return () => {
       cancelAnimationFrame(frame);
-      clearTimeout(timer);
       observer.disconnect();
       sizeObserver.disconnect();
-      document.removeEventListener('visibilitychange', schedule);
-      motion.removeEventListener('change', schedule);
+      document.removeEventListener('visibilitychange',schedule);
+      reducedMotion.removeEventListener('change',schedule);
     };
   }
-
-  window.DesignCarousel = { mount };
+  window.DesignCarousel={mount};
 })();
