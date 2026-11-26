@@ -431,7 +431,7 @@ window.CUSTOM=[
   "pwa": "",
   "device": "phone",
   "folder": "1",
-  "description": "",
+  "description": "Для разработки gif использовалась следующая связка: \n1. Покадровая генерация на chtgpt 5.6\n2. Генерация gif для каждого кадра через chtgpt 5.6\n3. Склейка через capcut\n4. Апскейл через claude opus",
   "descriptionHeading": "motion design p.1",
   "section": "design",
   "textColor": "#e9f53d",
