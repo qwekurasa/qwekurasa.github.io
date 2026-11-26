@@ -314,10 +314,10 @@ window.CUSTOM=[
   "pwa": "",
   "device": "phone",
   "folder": "1",
-  "desc": "",
   "description": "",
   "descriptionHeading": "выавыа",
   "section": "design",
+  "textColor": "#212121",
   "gallery": [
    {
     "src": "img/design-template-2/kibiew4y.gif",
@@ -360,24 +360,6 @@ window.CUSTOM=[
   "gallery": [],
   "features": [],
   "shots": []
- },
- {
-  "id": "mwxbggph",
-  "name": "trade bot - market cs:go",
-  "type": "",
-  "created": "",
-  "stack": "",
-  "platforms": "",
-  "link": "",
-  "pwa": "",
-  "device": "phone",
-  "folder": "1",
-  "desc": "",
-  "description": "",
-  "section": "llm",
-  "gallery": [],
-  "shots": [],
-  "features": []
  }
 ];
 window.CATS=[];
