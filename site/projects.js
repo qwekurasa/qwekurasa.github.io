@@ -388,6 +388,24 @@ window.CUSTOM=[
   "gallery": [],
   "shots": [],
   "features": []
+ },
+ {
+  "id": "mwxlr869",
+  "name": "poster p.2",
+  "type": "",
+  "created": "",
+  "stack": "",
+  "platforms": "",
+  "link": "",
+  "pwa": "",
+  "device": "phone",
+  "folder": "1",
+  "description": "",
+  "descriptionHeading": "",
+  "section": "design",
+  "gallery": [],
+  "shots": [],
+  "features": []
  }
 ];
 window.CATS=[];
