@@ -100,7 +100,11 @@ button.dark{background:#f2f2f7;color:#000;border-color:#f2f2f7}
 <div id="app" hidden>
   <section class="win"><h2 class="tab">Projects Browser</h2>
     <div class="pad"><p class="note">Стрелками можно менять порядок проектов внутри разделов.</p>
-    <div class="row"><button id="add">+ Новый проект</button><button class="ghost" id="logout">Выйти и забыть токен</button></div>
+    <div class="row"><button id="add">+ Новый проект</button><button class="ghost" id="replace-token" aria-expanded="false">Заменить токен</button><button class="ghost" id="logout">Выйти и забыть токен</button></div>
+    <div id="token-editor" hidden>
+      <label><span>Новый токен GitHub</span><input type="password" id="new-token" autocomplete="off" spellcheck="false"></label>
+      <button id="save-token">Сохранить токен</button>
+    </div>
     <p class="msg err" id="device-status" role="status" hidden></p></div>
     <div id="list" style="border-top:1px solid rgba(255,255,255,.08)"></div>
     <p class="sec">Категории</p>
@@ -164,6 +168,6 @@ button.dark{background:#f2f2f7;color:#000;border-color:#f2f2f7}
 <script src="gallery-media.js?v=1"></script>
 <script src="project-sections.js?v=2"></script>
 <script src="admin-device.js?v=1"></script>
-<script src="admin.js?v=2"></script>
+<script src="admin.js?v=3"></script>
 </body>
 </html>

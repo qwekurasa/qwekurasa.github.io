@@ -8,19 +8,24 @@ const githubRepo='/repos/qwekurasa/qwekurasa.github.io';
 const projectsPath='site/projects.js';
 const mediaPath=/^img\/[a-z0-9_-]+\/[a-z0-9_.-]+\.(webp|jpe?g|png|gif)$/i;
 
-async function github(endpoint,{method='GET',body}={}){
+async function github(endpoint,{method='GET',body,credential=token}={}){
   const response=await fetch('https://api.github.com'+endpoint,{
     method,cache:'no-store',credentials:'omit',redirect:'error',
-    headers:{Authorization:'Bearer '+token,Accept:'application/vnd.github+json','Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'},
+    headers:{Authorization:'Bearer '+credential,Accept:'application/vnd.github+json','Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'},
     body:body===undefined?undefined:JSON.stringify(body)
   });
   const result=await response.json().catch(()=>({}));
   if(!response.ok){
     if(response.status===401)throw new Error('Токен GitHub недействителен или истёк.');
-    if(response.status===403)throw new Error('Проверьте доступ токена к qwekurasa.github.io и право Contents → Read and write.');
+    if(response.status===403)throw new Error('GitHub отклонил '+(endpoint==='/graphql'?'сохранение':method+' '+endpoint.split('?')[0])+'. '+(result.message||'Проверьте доступ к qwekurasa.github.io и право Contents → Read and write.'));
     throw new Error(result.message||'Ошибка GitHub '+response.status);
   }
   return result;
+}
+
+async function checkAccount(credential){
+  const user=await github('/user',{credential});
+  if(user.login!=='qwekurasa')throw new Error('Нужен токен аккаунта qwekurasa.');
 }
 
 async function loadData(){
@@ -42,8 +47,7 @@ async function login(savedToken=''){
   $('#enter').disabled=true;
   $('#lmsg').textContent='';
   try{
-    const user=await github('/user');
-    if(user.login!=='qwekurasa')throw new Error('Нужен токен аккаунта qwekurasa.');
+    await checkAccount(token);
     await loadData();
     render();renderCats();
     if(!savedToken){
@@ -65,6 +69,35 @@ async function login(savedToken=''){
 }
 $('#enter').onclick=()=>login();
 $('#pw').onkeydown=e=>{if(e.key==='Enter')$('#enter').click()};
+$('#replace-token').onclick=()=>{
+  const editor=$('#token-editor');
+  editor.hidden=!editor.hidden;
+  $('#replace-token').setAttribute('aria-expanded',String(!editor.hidden));
+  if(!editor.hidden)$('#new-token').focus();
+  else $('#new-token').value='';
+};
+$('#save-token').onclick=async()=>{
+  if(busy||$('#save-token').disabled)return;
+  const replacement=$('#new-token').value.trim();
+  if(!replacement){$('#new-token').focus();return;}
+  $('#save-token').disabled=true;
+  const status=$('#device-status');
+  status.hidden=true;
+  try{
+    await checkAccount(replacement);
+    await github(githubRepo+'/contents/'+projectsPath,{credential:replacement});
+    await window.AdminDevice.save(replacement);
+    token=replacement;
+    if(!$('#token-editor').hidden)$('#replace-token').click();
+    status.textContent='Токен заменён.';
+  }catch(error){
+    status.textContent='Не удалось заменить токен. '+error.message;
+  }finally{
+    $('#save-token').disabled=false;
+    status.hidden=false;
+  }
+};
+$('#new-token').onkeydown=e=>{if(e.key==='Enter')$('#save-token').click()};
 $('#logout').onclick=async()=>{
   if(dirty&&!confirm('Выйти без сохранения изменений?'))return;
   try{
@@ -249,7 +282,12 @@ $('#done').onclick=()=>{if(galleryLoading||logoLoading)return;const name=$('#f-n
 $('#del').onclick=()=>{const p=list[edit.i];if(!confirm('Удалить «'+p.name+'»?'))return;
   [...(p.shots||[]),...(p.gallery||[])].forEach(s=>s.src&&removed.push(s.src));if(logoSource(p.logo))removed.push(logoSource(p.logo));list.splice(edit.i,1);edit=null;$('#form').hidden=true;mark();render();renderCats()};
 
-const b64=b=>new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result.split(',')[1]);fr.readAsDataURL(b)});
+const b64=blob=>new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.onload=()=>resolve(reader.result.split(',')[1]);
+  reader.onerror=()=>reject(reader.error);
+  reader.readAsDataURL(blob);
+});
 let busy=false,again=false;
 const projectMedia=p=>[...(p.shots||[]),...(p.gallery||[]),...(p.logo?.blob?[p.logo]:[])];
 async function commitProjects(projects,files){
@@ -261,24 +299,34 @@ async function commitProjects(projects,files){
   const pathsInUse=new Set(projects.flatMap(project=>[project.logo,...project.shots.map(shot=>shot.src),...project.gallery.map(item=>item.src)]));
   const deletions=[...new Set(removed)].filter(path=>mediaPath.test(path)&&!pathsInUse.has(path)&&!files.some(file=>file.path===path));
   const content='window.CUSTOM='+JSON.stringify(projects,null,1)+';\nwindow.CATS='+JSON.stringify(cats)+';\n';
-  const gitPath=path=>({path:'site/'+path,mode:'100644',type:'blob'});
-  const data=await github(githubRepo+'/git/blobs',{method:'POST',body:{content,encoding:'utf-8'}});
-  const base=await github(githubRepo+'/git/commits/'+head);
-  const tree=await github(githubRepo+'/git/trees',{method:'POST',body:{base_tree:base.tree.sha,tree:[
-    {path:projectsPath,mode:'100644',type:'blob',sha:data.sha},
-    ...files.filter(file=>pathsInUse.has(file.path)).map(file=>({...gitPath(file.path),sha:file.sha})),
-    ...deletions.map(path=>({...gitPath(path),sha:null}))
-  ]}});
-  const commit=await github(githubRepo+'/git/commits',{method:'POST',body:{message:'Админка: обновление проектов',tree:tree.sha,parents:[head]}});
-  await github(githubRepo+'/git/refs/heads/main',{method:'PATCH',body:{sha:commit.sha,force:false}});
-  savedProjectsSha=data.sha;
+  const contentBlob=new Blob([content]);
+  const object=new Blob(['blob '+contentBlob.size+'\0',contentBlob]);
+  const digest=await crypto.subtle.digest('SHA-1',await object.arrayBuffer());
+  const newProjectsSha=Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('');
+  const result=await github('/graphql',{method:'POST',body:{
+    query:`mutation SaveProjects($input: CreateCommitOnBranchInput!) {
+      createCommitOnBranch(input: $input) { commit { oid } }
+    }`,
+    variables:{input:{
+      branch:{repositoryNameWithOwner:'qwekurasa/qwekurasa.github.io',branchName:'main'},
+      expectedHeadOid:head,
+      message:{headline:'Админка: обновление проектов'},
+      fileChanges:{
+        additions:[{path:projectsPath,contents:await b64(contentBlob)},...files.filter(file=>pathsInUse.has(file.path)).map(file=>({path:'site/'+file.path,contents:file.contents}))],
+        deletions:deletions.map(path=>({path:'site/'+path}))
+      }
+    }}
+  }});
+  if(!result.data?.createCommitOnBranch?.commit?.oid)throw new Error(result.errors?.[0]?.message||'GitHub не сохранил изменения.');
+  savedProjectsSha=newProjectsSha;
 }
 
 async function publish(){if(busy){again=true;return}busy=true;$('#app').inert=true;$('#publish').hidden=true;const files=pending;
   try{let n=0,total=list.reduce((a,p)=>a+projectMedia(p).filter(s=>s.blob).length,0);
     for(const p of list)for(const s of projectMedia(p))if(s.blob){$('#bmsg').textContent=`Загрузка фото ${++n}/${total}…`;
-      const {sha}=await github(githubRepo+'/git/blobs',{method:'POST',body:{content:await b64(s.blob),encoding:'base64'}}),path=`img/${p.id}/${crypto.randomUUID()}.${{'image/jpeg':'jpg','image/png':'png','image/gif':'gif'}[s.blob.type]||'webp'}`;
-      files.push({path,sha});s.src=path;delete s.blob}
+      const path=`img/${p.id}/${crypto.randomUUID()}.${{'image/jpeg':'jpg','image/png':'png','image/gif':'gif'}[s.blob.type]||'webp'}`;
+      if(!mediaPath.test(path))throw new Error('Некорректный путь изображения.');
+      files.push({path,contents:await b64(s.blob)});s.src=path;delete s.blob}
     $('#bmsg').textContent='Публикация…';
     const clean=list.map(p=>({...p,logo:logoSource(p.logo)||undefined,features:p.features||[],shots:(p.shots||[]).map(s=>({src:s.src,h:s.h||'',p:s.p||''})),gallery:(p.gallery||[]).map(s=>({src:s.src,alt:s.alt||'',file:Math.max(0,Math.min(2,Math.floor(Number(s.file)||0))),width:s.width||0,height:s.height||0}))}));
     await commitProjects(clean,files);
