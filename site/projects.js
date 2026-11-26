@@ -174,7 +174,7 @@ window.CUSTOM=[
  },
  {
   "id": "mwi649gy",
-  "name": "конструктор мебели",
+  "name": "Конструктор мебели",
   "type": "Сайт",
   "created": "11.11.2026",
   "stack": "JS,swift,css,html",
