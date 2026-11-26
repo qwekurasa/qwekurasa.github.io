@@ -355,12 +355,21 @@ window.CUSTOM=[
  },
  {
   "id": "design-template-3",
-  "name": "Дизайн-проект 03",
-  "section": "design",
+  "name": "motion design p.2",
+  "type": "",
+  "created": "",
+  "stack": "",
+  "platforms": "",
+  "link": "",
+  "pwa": "",
+  "device": "phone",
+  "folder": "1",
   "description": "",
+  "descriptionHeading": "",
+  "section": "design",
   "gallery": [],
-  "features": [],
-  "shots": []
+  "shots": [],
+  "features": []
  }
 ];
 window.CATS=[];
