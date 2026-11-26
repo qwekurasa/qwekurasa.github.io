@@ -305,7 +305,7 @@ window.CUSTOM=[
  },
  {
   "id": "design-template-2",
-  "name": "Дизайн-проект 02",
+  "name": "motion design p.1",
   "type": "",
   "created": "",
   "stack": "",
