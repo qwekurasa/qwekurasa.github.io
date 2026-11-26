@@ -17,8 +17,8 @@ async function github(endpoint,{method='GET',body,credential=token}={}){
   const result=await response.json().catch(()=>({}));
   if(!response.ok){
     if(response.status===401)throw new Error('Токен GitHub недействителен или истёк.');
-    if(response.status===403)throw new Error('GitHub отклонил '+(endpoint==='/graphql'?'сохранение':method+' '+endpoint.split('?')[0])+'. '+(result.message||'Проверьте доступ к qwekurasa.github.io и право Contents → Read and write.'));
-    throw new Error(result.message||'Ошибка GitHub '+response.status);
+    const message=response.status===403?'GitHub отклонил '+method+' '+endpoint.split('?')[0]+'. '+(result.message||'Проверьте доступ к qwekurasa.github.io и право Contents → Read and write.'):result.message||'Ошибка GitHub '+response.status;
+    throw Object.assign(new Error(message),{status:response.status});
   }
   return result;
 }
@@ -290,6 +290,33 @@ const b64=blob=>new Promise((resolve,reject)=>{
 });
 let busy=false,again=false;
 const projectMedia=p=>[...(p.shots||[]),...(p.gallery||[]),...(p.logo?.blob?[p.logo]:[])];
+
+async function gitBlobSha(blob){
+  const object=new Blob(['blob '+blob.size+'\0',blob]);
+  const digest=await crypto.subtle.digest('SHA-1',await object.arrayBuffer());
+  return Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('');
+}
+
+async function saveWithContentsApi(projectFile,media){
+  const contentsApi=githubRepo+'/contents/';
+  for(const file of media){
+    if(file.uploaded)continue;
+    const endpoint=contentsApi+'site/'+file.path;
+    try{
+      const existing=await github(endpoint);
+      if(existing.sha!==file.sha)throw new Error('Файл уже существует: '+file.path);
+    }catch(error){
+      if(error.status!==404)throw error;
+      await github(endpoint,{method:'PUT',body:{branch:'main',message:'Админка: загрузка файла',content:file.contents}});
+    }
+    file.uploaded=true;
+  }
+  const result=await github(contentsApi+projectsPath,{method:'PUT',body:{
+    branch:'main',message:'Админка: обновление проектов',sha:savedProjectsSha,content:projectFile
+  }});
+  savedProjectsSha=result.content.sha;
+}
+
 async function commitProjects(projects,files){
   const ref=await github(githubRepo+'/git/ref/heads/main');
   const head=ref.object.sha;
@@ -298,25 +325,39 @@ async function commitProjects(projects,files){
 
   const pathsInUse=new Set(projects.flatMap(project=>[project.logo,...project.shots.map(shot=>shot.src),...project.gallery.map(item=>item.src)]));
   const deletions=[...new Set(removed)].filter(path=>mediaPath.test(path)&&!pathsInUse.has(path)&&!files.some(file=>file.path===path));
+  const media=files.filter(file=>pathsInUse.has(file.path));
   const content='window.CUSTOM='+JSON.stringify(projects,null,1)+';\nwindow.CATS='+JSON.stringify(cats)+';\n';
   const contentBlob=new Blob([content]);
-  const object=new Blob(['blob '+contentBlob.size+'\0',contentBlob]);
-  const digest=await crypto.subtle.digest('SHA-1',await object.arrayBuffer());
-  const newProjectsSha=Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('');
-  const result=await github('/graphql',{method:'POST',body:{
-    query:`mutation SaveProjects($input: CreateCommitOnBranchInput!) {
-      createCommitOnBranch(input: $input) { commit { oid } }
-    }`,
-    variables:{input:{
-      branch:{repositoryNameWithOwner:'qwekurasa/qwekurasa.github.io',branchName:'main'},
-      expectedHeadOid:head,
-      message:{headline:'Админка: обновление проектов'},
-      fileChanges:{
-        additions:[{path:projectsPath,contents:await b64(contentBlob)},...files.filter(file=>pathsInUse.has(file.path)).map(file=>({path:'site/'+file.path,contents:file.contents}))],
-        deletions:deletions.map(path=>({path:'site/'+path}))
-      }
-    }}
-  }});
+  const projectFile=await b64(contentBlob);
+  if(!media.length&&!deletions.length){
+    await saveWithContentsApi(projectFile,media);
+    return;
+  }
+  const newProjectsSha=await gitBlobSha(contentBlob);
+  let result;
+  try{
+    result=await github('/graphql',{method:'POST',body:{
+      query:`mutation SaveProjects($input: CreateCommitOnBranchInput!) {
+        createCommitOnBranch(input: $input) { commit { oid } }
+      }`,
+      variables:{input:{
+        branch:{repositoryNameWithOwner:'qwekurasa/qwekurasa.github.io',branchName:'main'},
+        expectedHeadOid:head,
+        message:{headline:'Админка: обновление проектов'},
+        fileChanges:{
+          additions:[{path:projectsPath,contents:projectFile},...media.map(file=>({path:'site/'+file.path,contents:file.contents}))],
+          deletions:deletions.map(path=>({path:'site/'+path}))
+        }
+      }}
+    }});
+  }catch(error){
+    if(error.status!==403)throw error;
+  }
+  if(!result||result.errors?.some(error=>error.type==='FORBIDDEN'||error.type==='INSUFFICIENT_SCOPES')){
+    // Publish the data last so the live portfolio always references uploaded files.
+    await saveWithContentsApi(projectFile,media);
+    return;
+  }
   if(!result.data?.createCommitOnBranch?.commit?.oid)throw new Error(result.errors?.[0]?.message||'GitHub не сохранил изменения.');
   savedProjectsSha=newProjectsSha;
 }
@@ -326,7 +367,7 @@ async function publish(){if(busy){again=true;return}busy=true;$('#app').inert=tr
     for(const p of list)for(const s of projectMedia(p))if(s.blob){$('#bmsg').textContent=`Загрузка фото ${++n}/${total}…`;
       const path=`img/${p.id}/${crypto.randomUUID()}.${{'image/jpeg':'jpg','image/png':'png','image/gif':'gif'}[s.blob.type]||'webp'}`;
       if(!mediaPath.test(path))throw new Error('Некорректный путь изображения.');
-      files.push({path,contents:await b64(s.blob)});s.src=path;delete s.blob}
+      files.push({path,contents:await b64(s.blob),sha:await gitBlobSha(s.blob)});s.src=path;delete s.blob}
     $('#bmsg').textContent='Публикация…';
     const clean=list.map(p=>({...p,logo:logoSource(p.logo)||undefined,features:p.features||[],shots:(p.shots||[]).map(s=>({src:s.src,h:s.h||'',p:s.p||''})),gallery:(p.gallery||[]).map(s=>({src:s.src,alt:s.alt||'',file:Math.max(0,Math.min(2,Math.floor(Number(s.file)||0))),width:s.width||0,height:s.height||0}))}));
     await commitProjects(clean,files);

@@ -3,6 +3,8 @@ name: Publish portfolio
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'site/img/**'
   workflow_dispatch:
 
 concurrency:
