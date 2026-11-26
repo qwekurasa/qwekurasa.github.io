@@ -13,7 +13,10 @@ window.AdminDevice={
   },
   async forget(){
     await deviceRecord('readwrite',store=>store.delete('github'));
-  }
+  },
+  loadDraft:()=>deviceRecord('readonly',store=>store.get('draft')),
+  saveDraft:draft=>deviceRecord('readwrite',store=>store.put(draft,'draft')),
+  forgetDraft:()=>deviceRecord('readwrite',store=>store.delete('draft'))
 };
 
 function deviceRecord(mode,operation){

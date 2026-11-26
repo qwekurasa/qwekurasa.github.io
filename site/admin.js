@@ -2,6 +2,7 @@ const $=s=>document.querySelector(s);
 const {labels:sectionLabels,sectionOf}=window.ProjectSections;
 $('#f-section').replaceChildren(...Object.entries(sectionLabels).map(([key,label])=>new Option(label,key)));
 let token='',savedProjectsSha='',cats=[],list=[],removed=[],pending=[],edit=null,dirty=false;
+let draftBase='',draftWrite=Promise.resolve(),draftSaved=true,draftConflict=false;
 const esc=v=>String(v??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[m]);
 
 const githubRepo='/repos/qwekurasa/qwekurasa.github.io';
@@ -49,6 +50,8 @@ async function login(savedToken=''){
   try{
     await checkAccount(token);
     await loadData();
+    draftBase=savedProjectsSha;
+    await restoreDraft();
     render();renderCats();
     if(!savedToken){
       try{await window.AdminDevice.save(token);}
@@ -99,11 +102,11 @@ $('#save-token').onclick=async()=>{
 };
 $('#new-token').onkeydown=e=>{if(e.key==='Enter')$('#save-token').click()};
 $('#logout').onclick=async()=>{
-  if(dirty&&!confirm('Выйти без сохранения изменений?'))return;
+  if(!draftSaved&&!confirm('Черновик не сохранён в браузере. Выйти без него?'))return;
   try{
     await window.AdminDevice.forget();
     token='';
-    dirty=false;
+    dirty=false;draftSaved=true;
     location.reload();
   }catch{
     $('#device-status').textContent='Не удалось удалить токен. Очистите данные этого сайта в браузере.';
@@ -111,7 +114,51 @@ $('#logout').onclick=async()=>{
   }
 };
 
-function mark(){dirty=true;$('#bar').hidden=false;publish()}
+function showDraftStatus(){
+  $('#bar').hidden=false;
+  $('#publish').hidden=false;
+  $('#discard-draft').hidden=false;
+  $('#publish').disabled=draftConflict;
+  $('#bmsg').textContent=draftConflict?'Проекты на GitHub обновились. Сбрось устаревший черновик, чтобы загрузить последние версии.':'Черновик сохранён на этом устройстве. Правки ещё не опубликованы.';
+}
+
+async function restoreDraft(){
+  let draft;
+  try{draft=await window.AdminDevice.loadDraft();}
+  catch{return;}
+  if(!draft)return;
+  ({list,cats,removed,pending}=draft);
+  draftBase=draft.base;
+  draftConflict=draftBase!==savedProjectsSha;
+  for(const project of list){
+    for(const media of projectMedia(project)){
+      if(media.blob)media.preview=URL.createObjectURL(media.blob);
+    }
+  }
+  dirty=true;
+  showDraftStatus();
+}
+
+function mark(){
+  dirty=true;
+  draftSaved=false;
+  showDraftStatus();
+  $('#bmsg').textContent='Сохраняю черновик…';
+  const withoutPreview=({preview,...media})=>media;
+  const snapshot=structuredClone({base:draftBase,cats,removed,pending,list:list.map(project=>({
+    ...project,shots:(project.shots||[]).map(withoutPreview),gallery:(project.gallery||[]).map(withoutPreview),
+    logo:typeof project.logo==='object'&&project.logo?withoutPreview(project.logo):project.logo
+  }))});
+  const write=draftWrite.catch(()=>{}).then(()=>window.AdminDevice.saveDraft(snapshot));
+  draftWrite=write;
+  write.then(()=>{
+    if(draftWrite!==write)return;
+    draftSaved=true;
+    if(!busy)showDraftStatus();
+  },()=>{
+    if(draftWrite===write&&!busy)$('#bmsg').textContent='Браузер не сохранил черновик. Опубликуй его перед закрытием вкладки.';
+  });
+}
 function render(){
   $('#list').innerHTML=Object.entries(sectionLabels).map(([key,label])=>{
     const projects=list.map((p,i)=>({p,i})).filter(({p})=>sectionOf(p)===key);
@@ -251,7 +298,7 @@ $('#galleryFiles').onchange=async e=>{const current=edit,files=[...e.target.file
   try{for(const f of files){if(!/^image\/(jpeg|png|webp|gif)$/.test(f.type))throw new Error('Поддерживаются PNG, JPG, WebP и GIF');
     $('#galleryStatus').textContent='Подготовка: '+f.name;const blob=await shrink(f),bm=await createImageBitmap(blob);const width=bm.width,height=bm.height;bm.close();
     if(edit!==current)break;current.gallery.push({blob,preview:URL.createObjectURL(blob),alt:'',file:0,width,height});drawGallery()}
-    $('#galleryStatus').textContent='Изображения добавлены. Нажмите «Сохранить проект», чтобы опубликовать.';
+    $('#galleryStatus').textContent='Изображения добавлены. Сохрани проект в черновик.';
   }catch(err){$('#galleryStatus').textContent='Ошибка: '+err.message}finally{galleryLoading=false;$('#done').disabled=logoLoading}};
 function drawFeats(){$('#feats').innerHTML=edit.feats.map((f,k)=>`<div class="item f"><div><input data-k="${k}" data-f="h" placeholder="Название, например «Импорт выписки»" value="${esc(f.h)}">
   <textarea data-k="${k}" data-f="p" placeholder="Короткое описание" style="min-height:52px;margin-bottom:6px">${esc(f.p)}</textarea>
@@ -288,7 +335,7 @@ const b64=blob=>new Promise((resolve,reject)=>{
   reader.onerror=()=>reject(reader.error);
   reader.readAsDataURL(blob);
 });
-let busy=false,again=false;
+let busy=false;
 const projectMedia=p=>[...(p.shots||[]),...(p.gallery||[]),...(p.logo?.blob?[p.logo]:[])];
 
 async function gitBlobSha(blob){
@@ -321,7 +368,10 @@ async function commitProjects(projects,files){
   const ref=await github(githubRepo+'/git/ref/heads/main');
   const head=ref.object.sha;
   const currentFile=await github(githubRepo+'/contents/'+projectsPath+'?ref='+head);
-  if(currentFile.sha!==savedProjectsSha)throw new Error('Проекты уже изменились в GitHub. Перезагрузите редактор перед сохранением.');
+  if(currentFile.sha!==savedProjectsSha){
+    draftConflict=true;
+    throw new Error('Проекты обновились в GitHub. Сбрось устаревший черновик, чтобы загрузить последние версии.');
+  }
 
   const pathsInUse=new Set(projects.flatMap(project=>[project.logo,...project.shots.map(shot=>shot.src),...project.gallery.map(item=>item.src)]));
   const deletions=[...new Set(removed)].filter(path=>mediaPath.test(path)&&!pathsInUse.has(path)&&!files.some(file=>file.path===path));
@@ -362,20 +412,39 @@ async function commitProjects(projects,files){
   savedProjectsSha=newProjectsSha;
 }
 
-async function publish(){if(busy){again=true;return}busy=true;$('#app').inert=true;$('#publish').hidden=true;const files=pending;
-  try{let n=0,total=list.reduce((a,p)=>a+projectMedia(p).filter(s=>s.blob).length,0);
-    for(const p of list)for(const s of projectMedia(p))if(s.blob){$('#bmsg').textContent=`Загрузка фото ${++n}/${total}…`;
+async function publish(){if(busy||!dirty||draftConflict||$('#save-token').disabled)return;busy=true;$('#app').inert=true;$('#publish').hidden=true;$('#discard-draft').hidden=true;const files=pending;
+  try{
+    await draftWrite.catch(()=>{});
+    let n=0,total=list.reduce((a,p)=>a+projectMedia(p).filter(s=>s.blob&&!files.some(file=>file.path===s.src)).length,0);
+    for(const p of list)for(const s of projectMedia(p))if(s.blob&&!files.some(file=>file.path===s.src)){$('#bmsg').textContent=`Подготовка фото ${++n}/${total}…`;
       const path=`img/${p.id}/${crypto.randomUUID()}.${{'image/jpeg':'jpg','image/png':'png','image/gif':'gif'}[s.blob.type]||'webp'}`;
       if(!mediaPath.test(path))throw new Error('Некорректный путь изображения.');
-      files.push({path,contents:await b64(s.blob),sha:await gitBlobSha(s.blob)});s.src=path;delete s.blob}
+      files.push({path,contents:await b64(s.blob),sha:await gitBlobSha(s.blob)});s.src=path}
     $('#bmsg').textContent='Публикация…';
     const clean=list.map(p=>({...p,logo:logoSource(p.logo)||undefined,features:p.features||[],shots:(p.shots||[]).map(s=>({src:s.src,h:s.h||'',p:s.p||''})),gallery:(p.gallery||[]).map(s=>({src:s.src,alt:s.alt||'',file:Math.max(0,Math.min(2,Math.floor(Number(s.file)||0))),width:s.width||0,height:s.height||0}))}));
     await commitProjects(clean,files);
-    removed=[];pending=[];dirty=false;$('#bmsg').textContent='Сохранено. GitHub Pages публикует обновление.';setTimeout(()=>{if(!dirty)$('#bar').hidden=true},6000);render()}
-  catch(e){$('#bmsg').textContent='Ошибка: '+e.message;$('#publish').hidden=false}
-  $('#app').inert=false;busy=false;if(again){again=false;publish()}}
+    for(const project of list)for(const media of projectMedia(project))delete media.blob;
+    removed=[];pending=[];dirty=false;draftBase=savedProjectsSha;draftSaved=true;
+    await window.AdminDevice.forgetDraft().catch(()=>{});
+    $('#bmsg').textContent='Сохранено. GitHub Pages публикует обновление.';setTimeout(()=>{if(!dirty)$('#bar').hidden=true},6000);render()}
+  catch(e){showDraftStatus();$('#bmsg').textContent='Ошибка: '+e.message}
+  finally{$('#app').inert=false;busy=false}}
 $('#publish').onclick=publish;
-addEventListener('beforeunload',e=>{if(dirty)e.preventDefault()});
+$('#discard-draft').onclick=async()=>{
+  if(busy||!confirm('Удалить неопубликованные правки на этом устройстве?'))return;
+  busy=true;
+  $('#app').inert=true;
+  $('#discard-draft').disabled=true;
+  $('#publish').disabled=true;
+  try{
+    await draftWrite.catch(()=>{});
+    await window.AdminDevice.forgetDraft();
+    dirty=false;draftSaved=true;busy=false;
+    location.reload();
+  }catch(error){showDraftStatus();$('#bmsg').textContent='Не удалось сбросить черновик. '+error.message}
+  finally{busy=false;$('#app').inert=false;$('#discard-draft').disabled=false;}
+};
+addEventListener('beforeunload',e=>{if(busy||!draftSaved)e.preventDefault()});
 window.AdminDevice.load().then(savedToken=>{
   if(savedToken&&!token&&!$('#pw').value)login(savedToken);
 }).catch(()=>{});
