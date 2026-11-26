@@ -35,9 +35,9 @@ async function loadData(){
   cats=categories;
 }
 
-async function login(){
+async function login(savedToken=''){
   if($('#enter').disabled)return;
-  token=$('#pw').value.trim();
+  token=savedToken||$('#pw').value.trim();
   if(!token){$('#pw').focus();return;}
   $('#enter').disabled=true;
   $('#lmsg').textContent='';
@@ -46,6 +46,13 @@ async function login(){
     if(user.login!=='qwekurasa')throw new Error('Нужен токен аккаунта qwekurasa.');
     await loadData();
     render();renderCats();
+    if(!savedToken){
+      try{await window.AdminDevice.save(token);}
+      catch{
+        $('#device-status').textContent='Этот браузер не сохранил токен. При следующем входе введите его снова.';
+        $('#device-status').hidden=false;
+      }
+    }
     $('#pw').value='';
     $('#login').hidden=true;
     $('#app').hidden=false;
@@ -56,8 +63,20 @@ async function login(){
     $('#enter').disabled=false;
   }
 }
-$('#enter').onclick=login;
+$('#enter').onclick=()=>login();
 $('#pw').onkeydown=e=>{if(e.key==='Enter')$('#enter').click()};
+$('#logout').onclick=async()=>{
+  if(dirty&&!confirm('Выйти без сохранения изменений?'))return;
+  try{
+    await window.AdminDevice.forget();
+    token='';
+    dirty=false;
+    location.reload();
+  }catch{
+    $('#device-status').textContent='Не удалось удалить токен. Очистите данные этого сайта в браузере.';
+    $('#device-status').hidden=false;
+  }
+};
 
 function mark(){dirty=true;$('#bar').hidden=false;publish()}
 function render(){
@@ -84,7 +103,7 @@ $('#c-new').onkeydown=e=>{if(e.key==='Enter')$('#c-add').click()};
 $('#f-type').onchange=()=>{const n=$('#f-type').value==='+';$('#newcat').hidden=!n;if(n){$('#f-cat').value='';$('#f-cat').focus()}};
 $('#addCat').onclick=()=>{const c=addCat($('#f-cat').value);if(c)fillTypes(c)};
 $('#f-cat').onkeydown=e=>{if(e.key==='Enter')$('#addCat').click()};
-const F=['name','type','created','stack','platforms','link','pwa','device','folder','desc','description','descriptionHeading','section'];
+const F=['name','type','created','stack','platforms','link','pwa','device','folder','description','descriptionHeading','section'];
 function syncSection(){
   const design=$('#f-section').value==='design';
   $('#project-details').hidden=design;
@@ -268,3 +287,6 @@ async function publish(){if(busy){again=true;return}busy=true;$('#app').inert=tr
   $('#app').inert=false;busy=false;if(again){again=false;publish()}}
 $('#publish').onclick=publish;
 addEventListener('beforeunload',e=>{if(dirty)e.preventDefault()});
+window.AdminDevice.load().then(savedToken=>{
+  if(savedToken&&!token&&!$('#pw').value)login(savedToken);
+}).catch(()=>{});

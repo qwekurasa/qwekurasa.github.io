@@ -207,7 +207,6 @@ body[data-v=project]{background:#fff}
 .st-pane li.on{outline:1px dotted #000;outline-offset:-2px}
 .st-pane a{color:#000;display:block}
 .st-code{padding:8px 12px 14px}
-.st-com{font:italic 15px/1.45 "Times New Roman",Times,serif;margin:6px 0 10px 22px}
 .st-code pre{margin:0 0 0 22px;font:13px/1.6 var(--sans);white-space:pre-wrap}
 .st-a{color:#000;text-decoration:underline}
 .st-art{padding:10px;border-bottom:2px solid #000}
@@ -240,7 +239,6 @@ body:not([data-v=project]) .st-top{display:none}
 .st-pane li.on{outline:0;background:rgba(255,255,255,.12);color:#fff}
 .st-pane a{color:inherit}
 .st-code b{color:#fff}
-.st-com{color:#e5e5ea}
 .st-code pre{color:#aeaeb2}
 .st-a{color:#f2f2f7}
 .st-art{padding:12px 12px 0;border-bottom:0}
@@ -402,7 +400,7 @@ body[data-v=index]{background:#fff}
 .project-description h3{margin:0 0 8px;font-size:inherit;font-weight:600}
 .project-description p{margin:0;white-space:pre-line}
 @media(max-width:650px){.project-description-content{grid-template-columns:1fr}.project-description-identity{gap:4px}}
-#project[data-text-color] :is(.st-menu a,.st-t,.st-pane li,.st-pane a,.st-code pre,.st-com,.st-a,.st-path,.st-files li,.st-out,.st-out b,.st-cap,.design-back,.design-placeholder,.lb button,.lb b,.lb span,.lb p){color:var(--project-text)}
+#project[data-text-color] :is(.st-menu a,.st-t,.st-pane li,.st-pane a,.st-code pre,.st-a,.st-path,.st-files li,.st-out,.st-out b,.st-cap,.design-back,.design-placeholder,.lb button,.lb b,.lb span,.lb p){color:var(--project-text)}
 #project .st-code b{color:var(--project-title,var(--project-text,#fff))}
 .project-section-title{margin:0;padding-block:10px;border-block:1px solid #ffffff14;color:#bfc0c4;font-size:12px;font-weight:400}
 #list>section>.row:first-of-type{margin-top:7px}
@@ -477,7 +475,7 @@ const GENERIC=['Экран 01','Экран 02','Экран 03','Экран 04','
 const P=[
  ...(window.CUSTOM||[]).map(c=>{const e=v=>String(v??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[m]),sh=c.shots||[];
    const url=/^https?:\/\//.test(c.link||'')?c.link:'';
-   return{id:'c'+e(c.id),section:sectionOf(c),url,device:c.device==='ipad'?'ipad':'phone',folder:c.folder!=='0',pwa:/^https:\/\//.test(c.pwa||'')?c.pwa:'',name:e(c.name),displayName:String(c.name||''),type:e(c.type),created:e(c.created),year:(c.created||'').slice(-4),desc:e(c.desc),description:typeof c.description==='string'?c.description.trim():'',cover:sh[0]?.src,
+   return{id:'c'+e(c.id),section:sectionOf(c),url,device:c.device==='ipad'?'ipad':'phone',folder:c.folder!=='0',pwa:/^https:\/\//.test(c.pwa||'')?c.pwa:'',name:e(c.name),displayName:String(c.name||''),type:e(c.type),created:e(c.created),year:(c.created||'').slice(-4),description:typeof c.description==='string'?c.description.trim():'',cover:sh[0]?.src,
     caseFiles:(c.caseFiles||[]).slice(0,3).map(e),
     descriptionHeading:typeof c.descriptionHeading==='string'?c.descriptionHeading.trim():'',
     backgroundColor:safeProjectColor(c.backgroundColor),textColor:safeProjectColor(c.textColor),titleColor:safeProjectColor(c.titleColor),descriptionColor:safeProjectColor(c.descriptionColor),
@@ -589,7 +587,7 @@ function renderProject(id){
       <ul class="st-pane">${group.map(q=>`<li${q===p?' class="on"':''}><a href="#p-${q.id}">Projects-${q.name}</a></li>`).join('')}</ul>
       <ul class="st-pane">${[p.code,p.type,p.created||'—'].map((x,j)=>`<li${j===1?' class="on"':''}>${x}</li>`).join('')}<li>------------</li></ul>
       <ul class="st-pane">${(shots.length?shots:[{h:'нет экранов'}]).map((w,j)=>`<li${j===0?' class="on"':''}>${w.h||'экран '+(j+1)}</li>`).join('')}<li>------------</li></ul></div>
-      <div class="st-code"><b>${p.name}: aProject</b><p class="st-com">"${p.desc||'Проект в работе. Скоро здесь появятся описание и экраны.'}"</p>
+      <div class="st-code"><b>${p.name}: aProject</b>
       <pre>| ${p.name.toLowerCase().replace(/\s+/g,'')} |\n${meta.map(m=>`${m[0]} ← ${String(m[1]).replace(/<a /,'<a class="st-a" ')}.`).join('\n')}</pre></div>`,'left:20px;top:56px')}
     ${pad?'':fold}
     ${info.length?W('st-fl','File List',`<div class="st-path">[]&lt;${p.name}&gt;Функции&gt;*▴</div><ul class="st-files">${info.map((w,j)=>`<li data-j="${j}"${j===0?' class="on"':''}>[${p.code}]&lt;${p.name}&gt;${w.h}.st</li>`).join('')}<li>------------</li></ul><div class="st-out" id="stOut"></div>`,'left:30px;top:520px'):''}
