@@ -434,36 +434,16 @@ window.CUSTOM=[
   "description": "",
   "descriptionHeading": "motion design p.1",
   "section": "design",
-  "titleColor": "#ffffff",
+  "backgroundColor": "#efff14",
+  "titleColor": "#000000",
   "descriptionColor": "#424242",
   "gallery": [
    {
-    "src": "img/design-template-2/kibiew4y.gif",
+    "src": "img/design-template-2/bd66ce85-603d-4ae2-99a2-3df461a104df.mp4",
     "alt": "",
     "file": 0,
-    "width": 237,
-    "height": 173
-   },
-   {
-    "src": "img/design-template-2/2m44rtii.gif",
-    "alt": "",
-    "file": 0,
-    "width": 249,
-    "height": 251
-   },
-   {
-    "src": "img/design-template-2/ged2sb2k.gif",
-    "alt": "",
-    "file": 0,
-    "width": 237,
-    "height": 177
-   },
-   {
-    "src": "img/design-template-2/dopt12gp.png",
-    "alt": "",
-    "file": 0,
-    "width": 1445,
-    "height": 1088
+    "width": 1444,
+    "height": 1080
    }
   ],
   "logo": "img/design-template-2/zrdpb3am.png",
