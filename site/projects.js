@@ -129,17 +129,30 @@ window.CUSTOM=[
   "pwa": "https://temptstr.vercel.app/#/",
   "device": "ipad",
   "folder": "0",
-  "desc": "Магазин одежды",
   "description": "Tempt — интернет-магазин одежды. В дизайне я сделал акцент на фотографиях и деталях вещей. Из каталога легко перейти к карточке товара, рассмотреть одежду ближе и выбрать размер.",
   "descriptionHeading": "",
   "section": "llm",
   "gallery": [
+   {
+    "src": "img/mvjxhkra/45b633ff-115a-4f7d-9e17-05c617f37c7b.gif",
+    "alt": "",
+    "file": 0,
+    "width": 1280,
+    "height": 960
+   },
    {
     "src": "img/mvjxhkra/jk9jlloh.png",
     "alt": "",
     "file": 0,
     "width": 1600,
     "height": 900
+   },
+   {
+    "src": "img/mvjxhkra/a202e7dc-4d32-41ca-8758-a25bf8ff9df8.gif",
+    "alt": "",
+    "file": 0,
+    "width": 1280,
+    "height": 960
    },
    {
     "src": "img/mvjxhkra/22qpmt9p.png",
@@ -149,18 +162,11 @@ window.CUSTOM=[
     "height": 1200
    },
    {
-    "src": "img/mvjxhkra/uso8595t.png",
+    "src": "img/mvjxhkra/3bc43b4e-d093-4f0e-8368-4ae192b87416.gif",
     "alt": "",
     "file": 0,
-    "width": 1600,
-    "height": 1200
-   },
-   {
-    "src": "img/mvjxhkra/yct9zc7s.png",
-    "alt": "",
-    "file": 0,
-    "width": 1600,
-    "height": 998
+    "width": 1280,
+    "height": 960
    }
   ],
   "shots": [],
