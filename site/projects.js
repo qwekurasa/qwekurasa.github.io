@@ -388,6 +388,24 @@ window.CUSTOM=[
   "gallery": [],
   "shots": [],
   "features": []
+ },
+ {
+  "id": "mwxlqopx",
+  "name": "poster p.2",
+  "type": "",
+  "created": "",
+  "stack": "",
+  "platforms": "",
+  "link": "",
+  "pwa": "",
+  "device": "phone",
+  "folder": "1",
+  "description": "",
+  "descriptionHeading": "",
+  "section": "llm",
+  "gallery": [],
+  "shots": [],
+  "features": []
  }
 ];
 window.CATS=[];
