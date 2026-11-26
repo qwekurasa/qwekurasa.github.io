@@ -14,7 +14,7 @@ export function start(doll,card){
  const smooth=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
  function placeCard(){
   const bounds=doll.getBoundingClientRect();
-  const left=bounds.left+(bounds.width-card.offsetWidth)/2;
+  const left=bounds.left+(bounds.width-card.offsetWidth)/2+18;
   card.style.left=Math.max(16,Math.min(innerWidth-card.offsetWidth-16,left))+'px';
   card.style.top=(bounds.bottom+12)+'px';
  }

@@ -429,6 +429,7 @@ body[data-v=index]{background:#fff}
 .design-back{justify-self:start;color:#ccc;text-decoration:none}
 .design-back:hover{text-decoration:underline}
 .project-photo-grid img{display:block;width:100%;height:100%;max-width:none;object-fit:contain;user-select:none}
+#project[data-background-color] :is(.st,.design-project,.project-description,.project-photo-grid,.project-photo-tile){background-color:transparent}
 
 
 </style>
@@ -479,7 +480,7 @@ const P=[
    return{id:'c'+e(c.id),section:sectionOf(c),url,device:c.device==='ipad'?'ipad':'phone',folder:c.folder!=='0',pwa:/^https:\/\//.test(c.pwa||'')?c.pwa:'',name:e(c.name),displayName:String(c.name||''),type:e(c.type),created:e(c.created),year:(c.created||'').slice(-4),desc:e(c.desc),description:typeof c.description==='string'?c.description.trim():'',cover:sh[0]?.src,
     caseFiles:(c.caseFiles||[]).slice(0,3).map(e),
     descriptionHeading:typeof c.descriptionHeading==='string'?c.descriptionHeading.trim():'',
-    textColor:safeProjectColor(c.textColor),titleColor:safeProjectColor(c.titleColor),descriptionColor:safeProjectColor(c.descriptionColor),
+    backgroundColor:safeProjectColor(c.backgroundColor),textColor:safeProjectColor(c.textColor),titleColor:safeProjectColor(c.titleColor),descriptionColor:safeProjectColor(c.descriptionColor),
     logo:/^img\/[a-z0-9_-]+\/[a-z0-9_.-]+\.(png|jpe?g)$/i.test(c.logo||'')?e(c.logo):'',
     gallery:(c.gallery||[]).filter(x=>/^\/?img\/[a-z0-9_-]+\/[a-z0-9_.-]+\.(webp|jpe?g|png|gif)$/i.test(x.src||'')).map(x=>({src:e(x.src),alt:e(x.alt),file:Math.max(0,Math.min(2,Math.floor(Number(x.file)||0))),width:Number(x.width)||0,height:Number(x.height)||0})),
     meta:[c.stack&&['Стек',e(c.stack)],c.platforms&&['Платформы',e(c.platforms)],url&&['Ссылка',`<a href="${e(url)}" target="_blank" rel="noopener">${e(url.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,''))}</a>`]].filter(Boolean),
@@ -542,6 +543,12 @@ function appendProjectDescription(host, project){
 }
 function applyProjectColors(host,project){
   host.toggleAttribute('data-text-color',Boolean(project.textColor));
+  host.toggleAttribute('data-background-color',Boolean(project.backgroundColor));
+  if(project.backgroundColor){
+    // The page inverts its outer surface. Counter-invert the chosen color.
+    const inverted=0xffffff-parseInt(project.backgroundColor.slice(1),16);
+    host.style.backgroundColor='#'+inverted.toString(16).padStart(6,'0');
+  }else host.style.removeProperty('background-color');
   for(const [property,color] of [['--project-text',project.textColor],['--project-title',project.titleColor],['--project-copy',project.descriptionColor]]){
     if(color)host.style.setProperty(property,color);
     else host.style.removeProperty(property);
@@ -703,6 +710,6 @@ function carousel(box,p){const ring=box.querySelector('.ixc-ring'),w=p.wins||[];
 })();
 </script>
 <script type="module" src="model-viewer.min.js"></script>
-<script src="hero-3d.js?v=room-4"></script>
+<script src="hero-3d.js?v=room-5"></script>
 </body>
 </html>
