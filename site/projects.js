@@ -310,6 +310,70 @@ window.CUSTOM=[
   "features": []
  },
  {
+  "id": "mwxw7jji",
+  "name": "tempt - магазин",
+  "type": "",
+  "created": "",
+  "stack": "",
+  "platforms": "",
+  "link": "",
+  "pwa": "",
+  "device": "phone",
+  "folder": "1",
+  "description": "Покупатель выбирает бренд, просматривает сетку товаров и переходит в отдельную карточку, чтобы рассмотреть вещь и добавить её в корзину. Визуально сделал упор на фотографии и спокойный черный фон, чтобы интерфейс помогал выбирать, а не перетягивал внимание на себя. Заказ из корзины приходит мне в Telegram-бота, а дальше я лично согласовываю с покупателем детали, оплату и доставку без регистрации на сайте. Для обновления ассортимента предусмотрел закрытую админку, а для возвращения покупателей использую телеграм канал с подборками: там можно заметить новую вещь и вернуться на сайт для приобретения вещи. Так же есть форум куда публикуются все новые подборки одежды.",
+  "descriptionHeading": "",
+  "section": "design",
+  "backgroundColor": "#000000",
+  "titleColor": "#ffffff",
+  "descriptionColor": "#94949a",
+  "gallery": [
+   {
+    "src": "img/mwxw7jji/7bfa62f7-a746-4e1c-b19f-eb9d8b4d7230.png",
+    "alt": "",
+    "file": 0,
+    "width": 1600,
+    "height": 900
+   },
+   {
+    "src": "img/mwxw7jji/aecfc493-9c1e-4797-a9bd-eb6b962ae448.gif",
+    "alt": "",
+    "file": 0,
+    "width": 1280,
+    "height": 960
+   },
+   {
+    "src": "img/mwxw7jji/0605606a-ef58-4813-8c77-9117217d7489.gif",
+    "alt": "",
+    "file": 0,
+    "width": 1280,
+    "height": 960
+   },
+   {
+    "src": "img/mwxw7jji/9bbc9208-f220-43ad-b496-296381c321a1.gif",
+    "alt": "",
+    "file": 0,
+    "width": 1280,
+    "height": 960
+   },
+   {
+    "src": "img/mwxw7jji/a94fc3d6-5a5c-42a9-a067-c2a49f9b0eb3.png",
+    "alt": "",
+    "file": 0,
+    "width": 1600,
+    "height": 1200
+   },
+   {
+    "src": "img/mwxw7jji/0d26f633-0181-4b35-bdf5-9aa1d06deea2.png",
+    "alt": "",
+    "file": 0,
+    "width": 1600,
+    "height": 998
+   }
+  ],
+  "shots": [],
+  "features": []
+ },
+ {
   "id": "design-template-2",
   "name": "motion design p.1",
   "type": "",
@@ -428,70 +492,6 @@ window.CUSTOM=[
   "descriptionHeading": "",
   "section": "design",
   "gallery": [],
-  "shots": [],
-  "features": []
- },
- {
-  "id": "mwxw7jji",
-  "name": "tempt - магазин",
-  "type": "",
-  "created": "",
-  "stack": "",
-  "platforms": "",
-  "link": "",
-  "pwa": "",
-  "device": "phone",
-  "folder": "1",
-  "description": "Покупатель выбирает бренд, просматривает сетку товаров и переходит в отдельную карточку, чтобы рассмотреть вещь и добавить её в корзину. Визуально сделал упор на фотографии и спокойный черный фон, чтобы интерфейс помогал выбирать, а не перетягивал внимание на себя. Заказ из корзины приходит мне в Telegram-бота, а дальше я лично согласовываю с покупателем детали, оплату и доставку без регистрации на сайте. Для обновления ассортимента предусмотрел закрытую админку, а для возвращения покупателей использую телеграм канал с подборками: там можно заметить новую вещь и вернуться на сайт для приобретения вещи. Так же есть форум куда публикуются все новые подборки одежды.",
-  "descriptionHeading": "",
-  "section": "design",
-  "backgroundColor": "#000000",
-  "titleColor": "#ffffff",
-  "descriptionColor": "#94949a",
-  "gallery": [
-   {
-    "src": "img/mwxw7jji/7bfa62f7-a746-4e1c-b19f-eb9d8b4d7230.png",
-    "alt": "",
-    "file": 0,
-    "width": 1600,
-    "height": 900
-   },
-   {
-    "src": "img/mwxw7jji/aecfc493-9c1e-4797-a9bd-eb6b962ae448.gif",
-    "alt": "",
-    "file": 0,
-    "width": 1280,
-    "height": 960
-   },
-   {
-    "src": "img/mwxw7jji/0605606a-ef58-4813-8c77-9117217d7489.gif",
-    "alt": "",
-    "file": 0,
-    "width": 1280,
-    "height": 960
-   },
-   {
-    "src": "img/mwxw7jji/9bbc9208-f220-43ad-b496-296381c321a1.gif",
-    "alt": "",
-    "file": 0,
-    "width": 1280,
-    "height": 960
-   },
-   {
-    "src": "img/mwxw7jji/a94fc3d6-5a5c-42a9-a067-c2a49f9b0eb3.png",
-    "alt": "",
-    "file": 0,
-    "width": 1600,
-    "height": 1200
-   },
-   {
-    "src": "img/mwxw7jji/0d26f633-0181-4b35-bdf5-9aa1d06deea2.png",
-    "alt": "",
-    "file": 0,
-    "width": 1600,
-    "height": 998
-   }
-  ],
   "shots": [],
   "features": []
  }
