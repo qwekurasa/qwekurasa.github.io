@@ -358,6 +358,7 @@ window.CUSTOM=[
     "height": 1080
    }
   ],
+  "logo": "img/mwxlrpu6/9cc2e391-0c3f-4517-b6e7-7c3ef0d11fb4.png",
   "shots": [],
   "features": []
  },
@@ -422,6 +423,7 @@ window.CUSTOM=[
     "height": 998
    }
   ],
+  "logo": "img/mwxw7jji/e47e2acf-4007-4d7b-8724-4076b42002da.png",
   "shots": [],
   "features": []
  },
