@@ -19,18 +19,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: Check out the portfolio frontend
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Prepare the public site
         shell: bash
         run: |
           git clone --depth 1 --branch main --single-branch https://github.com/qwekurasa/portfolio.git source
           mkdir public
-          files=(
-            index.html projects.js project-sections.js case-files.js design-carousel.js
-            phone.js hero-3d.js doll-motion.js project-cat-3d.js model-viewer.min.js
-            LICENSE-model-viewer.txt paper-unfold.json desk-scan.glb artem-doll.glb clay-cat.glb
-            img
-          )
-          for file in "${files[@]}"; do cp -R "source/$file" public/; done
+          cp -R site/. public/
+          cp source/projects.js public/
+          cp -R source/img public/
           git -C source rev-parse HEAD > public/source-revision.txt
       - name: Upload public files
         uses: actions/upload-pages-artifact@v4
