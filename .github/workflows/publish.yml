@@ -3,8 +3,6 @@ name: Publish portfolio
 on:
   push:
     branches: [main]
-  schedule:
-    - cron: '7,22,37,52 * * * *'
   workflow_dispatch:
 
 concurrency:
@@ -26,12 +24,9 @@ jobs:
       - name: Prepare the public site
         shell: bash
         run: |
-          git clone --depth 1 --branch main --single-branch https://github.com/qwekurasa/portfolio.git source
           mkdir public
           cp -R site/. public/
-          cp source/projects.js public/
-          cp -R source/img public/
-          git -C source rev-parse HEAD > public/source-revision.txt
+          git rev-parse HEAD > public/source-revision.txt
       - name: Upload public files
         uses: actions/upload-pages-artifact@v4
         with:
