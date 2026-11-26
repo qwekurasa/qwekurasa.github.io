@@ -301,7 +301,7 @@ window.CUSTOM=[
     "height": 960
    }
   ],
-  "logo": "img/mwxw7jji/e47e2acf-4007-4d7b-8724-4076b42002da.png",
+  "logo": "img/mwxw7jji/bc1cd415-b47d-4d6b-af6a-06d244320f97.png",
   "shots": [],
   "features": []
  },
@@ -372,7 +372,7 @@ window.CUSTOM=[
     "height": 1080
    }
   ],
-  "logo": "img/mwxlrpu6/9cc2e391-0c3f-4517-b6e7-7c3ef0d11fb4.png",
+  "logo": "img/mwxlrpu6/0c21c856-5fa9-4d4c-ad33-db1dc332415e.png",
   "shots": [],
   "features": []
  },
@@ -416,7 +416,7 @@ window.CUSTOM=[
     "height": 900
    }
   ],
-  "logo": "img/design-template-1/ft94g053.png",
+  "logo": "img/design-template-1/34311c39-e8b8-40dc-aa8c-c5ebb6bd9f83.png",
   "shots": [],
   "features": []
  },
@@ -444,7 +444,7 @@ window.CUSTOM=[
     "height": 1080
    }
   ],
-  "logo": "img/design-template-2/zrdpb3am.png",
+  "logo": "img/design-template-2/c8adc535-7202-4571-9e39-a53823a3e0ca.png",
   "shots": [],
   "features": []
  },
