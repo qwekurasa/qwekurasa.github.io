@@ -418,11 +418,23 @@ body[data-v=index]{background:#fff}
 .design-slide[aria-hidden="true"]{pointer-events:none}
 .design-carousel-stage.is-draggable{cursor:grab;touch-action:pan-y;user-select:none}
 .design-carousel-stage.is-dragging,.design-carousel-stage.is-dragging .design-slide{cursor:grabbing}
-.design-slide[data-side]{cursor:pointer}
+.design-slide[aria-hidden="false"]{cursor:zoom-in}
 .design-slide:focus,.design-carousel-stage:focus{outline:none}
-.design-slide:focus-visible img,.design-carousel-stage:focus-visible .design-slide[aria-disabled="true"] img{filter:brightness(1.24)}
+.design-slide:focus-visible img,.design-carousel-stage:focus-visible .design-slide[data-active] img{filter:brightness(1.24)}
 .design-slide img{position:absolute;inset:0;display:block;width:100%;height:100%;min-height:0;object-fit:contain}
 .design-carousel-stage:has(.design-placeholder){height:clamp(160px,38vw,360px);border:1px solid #fff2;border-radius:7px;background:#101011}
+.design-viewer{padding:0;margin:auto;max-width:94vw;max-height:94dvh;border:1px solid #3a3a3c;border-radius:7px;background:#1b1b1c;color:#f2f2f7;box-shadow:0 20px 60px #0009;overflow:hidden}
+.design-viewer::backdrop{background:#000b}
+.design-viewer[open]{display:flex;flex-direction:column}
+.design-viewer-bar{display:flex;align-items:center;gap:8px;min-width:min(310px,94vw);padding:5px 8px;border-bottom:1px solid #3a3a3c;background:#2b2b2c}
+.design-viewer-dots{flex:none;width:7px;height:7px;margin:0 22px 0 4px;border-radius:50%;background:#6d6d70;box-shadow:11px 0 #555558,22px 0 #414144}
+.design-viewer-count{margin-inline-end:auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+.design-viewer button{min-width:28px;min-height:30px;padding:0 5px;text-align:center;border-radius:4px;color:inherit;white-space:nowrap}
+.design-viewer button:is(:hover,[aria-pressed="true"]){background:#ffffff20}
+.design-viewer-media{min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;background:#080808}
+.design-viewer-media::-webkit-scrollbar{display:block;width:7px;height:7px}
+.design-viewer img{display:block;width:auto;height:auto;max-width:100%;max-height:calc(94dvh - 44px);margin:auto;object-fit:contain}
+.design-viewer[data-original] img{max-width:none;max-height:none}
 .design-placeholder{margin:0;display:grid;place-items:center;height:100%;color:#9b9ba0}
 .design-back{justify-self:start;color:#ccc;text-decoration:none}
 .design-back:hover{text-decoration:underline}
@@ -464,7 +476,7 @@ body[data-v=index]{background:#fff}
 <script src="project-cat-3d.js?v=1"></script>
 <script src="phone.js?v=baecc87"></script>
 <script src="project-sections.js?v=2"></script>
-<script src="design-carousel.js?v=5"></script>
+<script src="design-carousel.js?v=7"></script>
 <script src="case-files.js?v=five-per-row"></script>
 <script>
 const $=s=>document.querySelector(s);

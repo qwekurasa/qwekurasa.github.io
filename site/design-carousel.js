@@ -10,11 +10,62 @@
     const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
     let width = 0, height = 0, angle = 0, target = 0, direction = 1;
     let frame = 0, timer = 0, drag = null, ignoreClick = false, visible = false;
+    const viewer = document.createElement('dialog');
+    viewer.className = 'design-viewer';
+    viewer.setAttribute('aria-label', 'Просмотр изображений проекта');
+    viewer.innerHTML = `<header class="design-viewer-bar">
+      <span class="design-viewer-dots" aria-hidden="true"></span>
+      <span class="design-viewer-count" aria-live="polite"></span>
+      <button type="button" data-previous aria-label="Предыдущее изображение">←</button>
+      <button type="button" data-next aria-label="Следующее изображение">→</button>
+      <button type="button" data-original-size aria-label="Исходный масштаб" aria-pressed="false">1:1</button>
+      <button type="button" data-close aria-label="Закрыть" autofocus>×</button>
+    </header><div class="design-viewer-media"><img alt=""></div>`;
+    root.append(viewer);
+    const viewerMedia = viewer.querySelector('.design-viewer-media');
+    const fullImage = viewerMedia.querySelector('img');
+    const countLabel = viewer.querySelector('.design-viewer-count');
+    const originalSize = viewer.querySelector('[data-original-size]');
+    const previous = viewer.querySelector('[data-previous]');
+    const next = viewer.querySelector('[data-next]');
+    let selected = 0;
+    previous.hidden = next.hidden = media.length === 1;
+
+    function setOriginalSize(original) {
+      viewer.toggleAttribute('data-original', original);
+      originalSize.setAttribute('aria-pressed', String(original));
+      viewerMedia.scrollTo(0, 0);
+    }
+
+    function showImage(index) {
+      selected = (index + media.length) % media.length;
+      fullImage.alt = slides[selected].image.alt;
+      fullImage.src = media[selected].src;
+      countLabel.textContent = (selected + 1) + ' / ' + media.length;
+      setOriginalSize(false);
+    }
+
+    previous.onclick = () => showImage(selected - 1);
+    next.onclick = () => showImage(selected + 1);
+    originalSize.onclick = () => setOriginalSize(!viewer.hasAttribute('data-original'));
+    viewer.querySelector('[data-close]').onclick = () => viewer.close();
+    viewer.addEventListener('click', event => { if (event.target === viewer) viewer.close(); });
+    viewer.addEventListener('keydown', event => {
+      if (media.length < 2 || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+      event.stopPropagation();
+      event.preventDefault();
+      showImage(selected + (event.key === 'ArrowRight' ? 1 : -1));
+    });
+    viewer.addEventListener('close', () => {
+      fullImage.removeAttribute('src');
+      schedule();
+    });
 
     const slides = items.map(({ src, alt, width: sourceWidth, height: sourceHeight }, i) => {
       const card = document.createElement('button');
       card.type = 'button';
       card.className = 'design-slide';
+      card.setAttribute('aria-haspopup', 'dialog');
       const image = new Image();
       const label = document.createElement('textarea');
       label.innerHTML = alt;
@@ -25,8 +76,9 @@
       card.append(image);
       stage.append(card);
       card.addEventListener('click', () => {
-        const side = Number(card.dataset.side);
-        if (side) go(target + side);
+        showImage(i % media.length);
+        viewer.showModal();
+        schedule();
       });
       const ratio = sourceWidth / sourceHeight;
       const slide = { card, image, src, ratio: ratio > 0 && Number.isFinite(ratio) ? ratio : 1 };
@@ -89,16 +141,14 @@
         const offset = offsetFor(index, target);
         const side = Math.abs(offset) === 1;
         card.setAttribute('aria-hidden', String(Math.abs(offset) > 1));
-        card.setAttribute('aria-disabled', String(offset === 0));
-        card.tabIndex = side ? 0 : -1;
-        if (side) card.dataset.side = offset;
-        else delete card.dataset.side;
+        card.toggleAttribute('data-active', offset === 0);
+        card.tabIndex = side || offset === 0 ? 0 : -1;
       });
     }
 
     function schedule() {
       clearTimeout(timer);
-      if (count < 2 || !visible || document.hidden || motion.matches || drag) return;
+      if (count < 2 || !stage.isConnected || viewer.open || !visible || document.hidden || motion.matches || drag) return;
       timer = setTimeout(() => go(target + 1), 3000);
     }
 
@@ -129,7 +179,7 @@
     updateControls();
     const sizeObserver = new ResizeObserver(resize);
     sizeObserver.observe(stage);
-    if (count < 2) return () => sizeObserver.disconnect();
+    if (count < 2) return () => { viewer.remove(); sizeObserver.disconnect(); };
 
     stage.classList.add('is-draggable');
     stage.tabIndex = 0;
@@ -188,6 +238,7 @@
     return () => {
       cancelAnimationFrame(frame);
       clearTimeout(timer);
+      viewer.remove();
       observer.disconnect();
       sizeObserver.disconnect();
       document.removeEventListener('visibilitychange', schedule);
