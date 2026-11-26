@@ -317,7 +317,8 @@ window.CUSTOM=[
   "description": "",
   "descriptionHeading": "выавыа",
   "section": "design",
-  "textColor": "#212121",
+  "titleColor": "#ffffff",
+  "descriptionColor": "#424242",
   "gallery": [
    {
     "src": "img/design-template-2/kibiew4y.gif",
