@@ -406,6 +406,24 @@ window.CUSTOM=[
   "gallery": [],
   "shots": [],
   "features": []
+ },
+ {
+  "id": "mwxlqtec",
+  "name": "poster p.3",
+  "type": "",
+  "created": "",
+  "stack": "",
+  "platforms": "",
+  "link": "",
+  "pwa": "",
+  "device": "phone",
+  "folder": "1",
+  "description": "",
+  "descriptionHeading": "",
+  "section": "llm",
+  "gallery": [],
+  "shots": [],
+  "features": []
  }
 ];
 window.CATS=[];
