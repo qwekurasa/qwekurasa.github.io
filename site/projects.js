@@ -177,57 +177,39 @@ window.CUSTOM=[
   "pwa": "https://qwekurasa.github.io/terekhov-bureau/",
   "device": "ipad",
   "folder": "0",
-  "desc": "",
   "description": "Бюро — конструктор мебели в браузере. Можно задать размеры изделия, добавить полки, ящики и фурнитуру, а затем посмотреть, как всё выглядит в 3D. По готовой модели конструктор формирует чертежи деталей и карту раскроя для производства.",
+  "descriptionHeading": "",
+  "section": "llm",
+  "backgroundColor": "#ffffff",
+  "textColor": "#878787",
   "gallery": [
    {
-    "src": "img/mwi649gy/614pni4l.png",
+    "src": "img/mwi649gy/53ecb36e-171f-4057-a98c-712a497d5183.gif",
     "alt": "",
     "file": 0,
-    "width": 1600,
-    "height": 1200
+    "width": 1280,
+    "height": 960
    },
    {
-    "src": "img/mwi649gy/p2gxryk1.png",
+    "src": "img/mwi649gy/e378ce34-3c52-41ac-94cb-338a8b9fee2d.gif",
     "alt": "",
     "file": 0,
-    "width": 1600,
-    "height": 1200
+    "width": 1280,
+    "height": 960
    },
    {
-    "src": "img/mwi649gy/bxfppi9g.png",
+    "src": "img/mwi649gy/b0a7dd58-9816-4ed0-83c0-8644bc23e7ff.gif",
     "alt": "",
-    "file": 1,
-    "width": 1600,
-    "height": 1200
+    "file": 0,
+    "width": 1280,
+    "height": 960
    },
    {
-    "src": "img/mwi649gy/ona2xfmc.png",
+    "src": "img/mwi649gy/95ff0047-358f-4ccb-bfb1-44136e40b480.gif",
     "alt": "",
-    "file": 1,
-    "width": 1600,
-    "height": 1200
-   },
-   {
-    "src": "img/mwi649gy/ep8johh9.png",
-    "alt": "",
-    "file": 1,
-    "width": 1600,
-    "height": 1200
-   },
-   {
-    "src": "img/mwi649gy/kl51pvl9.png",
-    "alt": "",
-    "file": 1,
-    "width": 1600,
-    "height": 1200
-   },
-   {
-    "src": "img/mwi649gy/mlmtimrc.png",
-    "alt": "",
-    "file": 2,
-    "width": 1600,
-    "height": 1200
+    "file": 0,
+    "width": 1280,
+    "height": 960
    }
   ],
   "shots": [],
