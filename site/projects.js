@@ -434,8 +434,7 @@ window.CUSTOM=[
   "description": "",
   "descriptionHeading": "motion design p.1",
   "section": "design",
-  "titleColor": "#ffffff",
-  "descriptionColor": "#f1ff2e",
+  "textColor": "#e9f53d",
   "gallery": [
    {
     "src": "img/design-template-2/bd66ce85-603d-4ae2-99a2-3df461a104df.mp4",
