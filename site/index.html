@@ -420,8 +420,9 @@ body[data-v=index]{background:#fff}
 .design-carousel-stage.is-dragging,.design-carousel-stage.is-dragging .design-slide{cursor:grabbing}
 .design-slide[aria-hidden="false"]{cursor:zoom-in}
 .design-slide:focus,.design-carousel-stage:focus{outline:none}
-.design-slide:focus-visible img,.design-carousel-stage:focus-visible .design-slide[data-active] img{filter:brightness(1.24)}
-.design-slide img{position:absolute;inset:0;display:block;width:100%;height:100%;min-height:0;object-fit:contain}
+.design-slide:focus-visible :is(img,video),.design-carousel-stage:focus-visible .design-slide[data-active] :is(img,video){filter:brightness(1.24)}
+.design-slide :is(img,video){position:absolute;inset:0;display:block;width:100%;height:100%;min-height:0;object-fit:contain;pointer-events:none}
+.design-slide[data-video]::after{content:"▶";position:absolute;right:8px;bottom:8px;padding:4px 7px;border-radius:4px;background:#000a;color:#fff;font-size:11px;pointer-events:none}
 .design-carousel-stage:has(.design-placeholder){height:clamp(160px,38vw,360px);border:1px solid #fff2;border-radius:7px;background:#101011}
 .design-viewer{padding:0;margin:auto;max-width:94vw;max-height:94dvh;border:1px solid #3a3a3c;border-radius:7px;background:#1b1b1c;color:#f2f2f7;box-shadow:0 20px 60px #0009;overflow:hidden}
 .design-viewer::backdrop{background:#000b}
@@ -433,8 +434,8 @@ body[data-v=index]{background:#fff}
 .design-viewer button:is(:hover,[aria-pressed="true"]){background:#ffffff20}
 .design-viewer-media{min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;background:#080808}
 .design-viewer-media::-webkit-scrollbar{display:block;width:7px;height:7px}
-.design-viewer img{display:block;width:auto;height:auto;max-width:100%;max-height:calc(94dvh - 44px);margin:auto;object-fit:contain}
-.design-viewer[data-original] img{max-width:none;max-height:none}
+.design-viewer :is(img,video){display:block;width:auto;height:auto;max-width:100%;max-height:calc(94dvh - 44px);margin:auto;object-fit:contain}
+.design-viewer[data-original] :is(img,video){max-width:none;max-height:none}
 .design-placeholder{margin:0;display:grid;place-items:center;height:100%;color:#9b9ba0}
 .design-back{justify-self:start;color:#ccc;text-decoration:none}
 .design-back:hover{text-decoration:underline}
@@ -476,7 +477,7 @@ body[data-v=index]{background:#fff}
 <script src="project-cat-3d.js?v=1"></script>
 <script src="phone.js?v=baecc87"></script>
 <script src="project-sections.js?v=2"></script>
-<script src="design-carousel.js?v=7"></script>
+<script src="design-carousel.js?v=8"></script>
 <script src="case-files.js?v=five-per-row"></script>
 <script>
 const $=s=>document.querySelector(s);
@@ -492,7 +493,7 @@ const P=[
     descriptionHeading:typeof c.descriptionHeading==='string'?c.descriptionHeading.trim():'',
     backgroundColor:safeProjectColor(c.backgroundColor),textColor:safeProjectColor(c.textColor),titleColor:safeProjectColor(c.titleColor),descriptionColor:safeProjectColor(c.descriptionColor),
     logo:/^img\/[a-z0-9_-]+\/[a-z0-9_.-]+\.(png|jpe?g)$/i.test(c.logo||'')?e(c.logo):'',
-    gallery:(c.gallery||[]).filter(x=>/^\/?img\/[a-z0-9_-]+\/[a-z0-9_.-]+\.(webp|jpe?g|png|gif)$/i.test(x.src||'')).map(x=>({src:e(x.src),alt:e(x.alt),file:Math.max(0,Math.min(2,Math.floor(Number(x.file)||0))),width:Number(x.width)||0,height:Number(x.height)||0})),
+    gallery:(c.gallery||[]).filter(x=>/^\/?img\/[a-z0-9_-]+\/[a-z0-9_.-]+\.(webp|jpe?g|png|gif|mp4)$/i.test(x.src||'')&&(sectionOf(c)==='design'||!/\.mp4$/i.test(x.src))).map(x=>({src:e(x.src),alt:e(x.alt),file:Math.max(0,Math.min(2,Math.floor(Number(x.file)||0))),width:Number(x.width)||0,height:Number(x.height)||0})),
     meta:[c.stack&&['Стек',e(c.stack)],c.platforms&&['Платформы',e(c.platforms)],url&&['Ссылка',`<a href="${e(url)}" target="_blank" rel="noopener">${e(url.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,''))}</a>`]].filter(Boolean),
     shots:sh.length?sh.map(x=>e(x.h)||'Фото'):undefined,wins:sh.length||(c.features||[]).length?[...sh.map(x=>({img:e(x.src),h:e(x.h),p:e(x.p)})),...(c.features||[]).map(f=>({h:e(f.h),p:e(f.p),ul:(f.ul||[]).map(e)}))]:undefined}}),
 ];

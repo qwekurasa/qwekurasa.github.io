@@ -1,4 +1,6 @@
 (() => {
+  const isVideo = src => /\.mp4$/i.test(src);
+
   function mount(root, media) {
     if (!media.length) return () => {};
     const stage = root.querySelector('.design-carousel-stage');
@@ -12,7 +14,7 @@
     let frame = 0, timer = 0, drag = null, ignoreClick = false, visible = false;
     const viewer = document.createElement('dialog');
     viewer.className = 'design-viewer';
-    viewer.setAttribute('aria-label', 'Просмотр изображений проекта');
+    viewer.setAttribute('aria-label', 'Просмотр медиа проекта');
     viewer.innerHTML = `<header class="design-viewer-bar">
       <span class="design-viewer-dots" aria-hidden="true"></span>
       <span class="design-viewer-count" aria-live="polite"></span>
@@ -20,10 +22,11 @@
       <button type="button" data-next aria-label="Следующее изображение">→</button>
       <button type="button" data-original-size aria-label="Исходный масштаб" aria-pressed="false">1:1</button>
       <button type="button" data-close aria-label="Закрыть" autofocus>×</button>
-    </header><div class="design-viewer-media"><img alt=""></div>`;
+    </header><div class="design-viewer-media"><img alt=""><video controls playsinline preload="metadata" hidden></video></div>`;
     root.append(viewer);
     const viewerMedia = viewer.querySelector('.design-viewer-media');
     const fullImage = viewerMedia.querySelector('img');
+    const fullVideo = viewerMedia.querySelector('video');
     const countLabel = viewer.querySelector('.design-viewer-count');
     const originalSize = viewer.querySelector('[data-original-size]');
     const previous = viewer.querySelector('[data-previous]');
@@ -37,27 +40,47 @@
       viewerMedia.scrollTo(0, 0);
     }
 
-    function showImage(index) {
+    function stopVideo() {
+      if (!fullVideo.hasAttribute('src')) return;
+      fullVideo.pause();
+      fullVideo.removeAttribute('src');
+      fullVideo.load();
+    }
+
+    function showItem(index) {
       selected = (index + media.length) % media.length;
-      fullImage.alt = slides[selected].image.alt;
-      fullImage.src = media[selected].src;
+      const { src } = media[selected];
+      const video = isVideo(src);
+      stopVideo();
+      fullImage.hidden = video;
+      fullVideo.hidden = !video;
+      if (video) {
+        fullVideo.setAttribute('aria-label', slides[selected].label);
+        fullVideo.src = src;
+        fullImage.removeAttribute('src');
+      } else {
+        fullImage.alt = slides[selected].label;
+        fullImage.src = src;
+      }
       countLabel.textContent = (selected + 1) + ' / ' + media.length;
       setOriginalSize(false);
     }
 
-    previous.onclick = () => showImage(selected - 1);
-    next.onclick = () => showImage(selected + 1);
+    previous.onclick = () => showItem(selected - 1);
+    next.onclick = () => showItem(selected + 1);
     originalSize.onclick = () => setOriginalSize(!viewer.hasAttribute('data-original'));
     viewer.querySelector('[data-close]').onclick = () => viewer.close();
     viewer.addEventListener('click', event => { if (event.target === viewer) viewer.close(); });
     viewer.addEventListener('keydown', event => {
       if (media.length < 2 || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
       event.stopPropagation();
+      if (event.target === fullVideo) return;
       event.preventDefault();
-      showImage(selected + (event.key === 'ArrowRight' ? 1 : -1));
+      showItem(selected + (event.key === 'ArrowRight' ? 1 : -1));
     });
     viewer.addEventListener('close', () => {
       fullImage.removeAttribute('src');
+      stopVideo();
       schedule();
     });
 
@@ -66,25 +89,36 @@
       card.type = 'button';
       card.className = 'design-slide';
       card.setAttribute('aria-haspopup', 'dialog');
-      const image = new Image();
+      const video = isVideo(src);
+      const element = video ? document.createElement('video') : new Image();
       const label = document.createElement('textarea');
       label.innerHTML = alt;
-      image.alt = label.value;
-      image.draggable = false;
-      image.decoding = 'async';
-      card.setAttribute('aria-label', label.value || 'Изображение ' + (i % media.length + 1));
-      card.append(image);
+      if (video) {
+        element.muted = true;
+        element.loop = true;
+        element.playsInline = true;
+        element.preload = 'metadata';
+        card.dataset.video = '';
+      } else {
+        element.alt = label.value;
+        element.decoding = 'async';
+      }
+      element.draggable = false;
+      card.setAttribute('aria-label', label.value || (video ? 'Видео ' : 'Изображение ') + (i % media.length + 1));
+      card.append(element);
       stage.append(card);
       card.addEventListener('click', () => {
-        showImage(i % media.length);
+        showItem(i % media.length);
         viewer.showModal();
         schedule();
       });
       const ratio = sourceWidth / sourceHeight;
-      const slide = { card, image, src, ratio: ratio > 0 && Number.isFinite(ratio) ? ratio : 1 };
-      image.addEventListener('load', () => {
-        if (!image.naturalWidth || !image.naturalHeight || !stage.isConnected) return;
-        slide.ratio = image.naturalWidth / image.naturalHeight;
+      const slide = { card, element, src, video, label: label.value, ratio: ratio > 0 && Number.isFinite(ratio) ? ratio : 1 };
+      element.addEventListener(video ? 'loadedmetadata' : 'load', () => {
+        const width = video ? element.videoWidth : element.naturalWidth;
+        const height = video ? element.videoHeight : element.naturalHeight;
+        if (!width || !height || !stage.isConnected) return;
+        slide.ratio = width / height;
         resize();
       }, { once: true });
       return slide;
@@ -129,7 +163,7 @@
         const maxShift = Math.max(0, (width / 2 - 4) / magnification - halfCard);
         const shift = Math.sign(slot) * Math.min(depth * (centerWidth * .43 + slide.width * .38), maxShift);
         const opacity = depth < 1 ? 1 - depth * .37 : .63 * (1 - Math.min(1, (depth - 1) * 2));
-        if (depth <= 1.5 && !slide.image.hasAttribute('src')) slide.image.src = slide.src;
+        if (depth <= 1.5 && !slide.element.hasAttribute('src')) slide.element.src = slide.src;
         slide.card.style.opacity = opacity;
         slide.card.style.zIndex = Math.round(100 - depth * 40);
         slide.card.style.transform = 'translate3d(' + shift + 'px,0,' + z + 'px) rotateY(' + yaw + 'deg)';
@@ -148,6 +182,12 @@
 
     function schedule() {
       clearTimeout(timer);
+      for (const [index, slide] of slides.entries()) {
+        if (!slide.video) continue;
+        if (index === wrap(target) && visible && !document.hidden && !viewer.open && !drag && !motion.matches) {
+          slide.element.play().catch(() => {});
+        } else slide.element.pause();
+      }
       if (count < 2 || !stage.isConnected || viewer.open || !visible || document.hidden || motion.matches || drag) return;
       timer = setTimeout(() => go(target + 1), 3000);
     }
@@ -179,15 +219,18 @@
     updateControls();
     const sizeObserver = new ResizeObserver(resize);
     sizeObserver.observe(stage);
-    if (count < 2) return () => { viewer.remove(); sizeObserver.disconnect(); };
+    if (count < 2 && !slides[0].video) return () => { viewer.remove(); sizeObserver.disconnect(); };
 
-    stage.classList.add('is-draggable');
-    stage.tabIndex = 0;
+    if (count > 1) {
+      stage.classList.add('is-draggable');
+      stage.tabIndex = 0;
+    }
     stage.addEventListener('pointerdown', event => {
-      if (!event.isPrimary || event.button !== 0) return;
+      if (count < 2 || !event.isPrimary || event.button !== 0) return;
       ignoreClick = false;
       drag = { pointer: event.pointerId, x: event.clientX, angle, moved: false };
       clearTimeout(timer);
+      for (const slide of slides) if (slide.video) slide.element.pause();
     });
     stage.addEventListener('pointermove', event => {
       if (drag?.pointer !== event.pointerId) return;
@@ -227,7 +270,7 @@
       ignoreClick = false;
     }, true);
     root.addEventListener('keydown', event => {
-      if (!['ArrowRight', 'ArrowLeft'].includes(event.key)) return;
+      if (count < 2 || !['ArrowRight', 'ArrowLeft'].includes(event.key)) return;
       event.preventDefault();
       go(target + (event.key === 'ArrowRight' ? 1 : -1));
     });
@@ -238,6 +281,8 @@
     return () => {
       cancelAnimationFrame(frame);
       clearTimeout(timer);
+      stopVideo();
+      for (const slide of slides) if (slide.video) slide.element.pause();
       viewer.remove();
       observer.disconnect();
       sizeObserver.disconnect();

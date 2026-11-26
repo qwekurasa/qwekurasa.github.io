@@ -7,7 +7,8 @@ const esc=v=>String(v??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&g
 
 const githubRepo='/repos/qwekurasa/qwekurasa.github.io';
 const projectsPath='site/projects.js';
-const mediaPath=/^img\/[a-z0-9_-]+\/[a-z0-9_.-]+\.(webp|jpe?g|png|gif)$/i;
+const mediaPath=/^img\/[a-z0-9_-]+\/[a-z0-9_.-]+\.(webp|jpe?g|png|gif|mp4)$/i;
+const isVideo=item=>item.blob?.type==='video/mp4'||/\.mp4$/i.test(item.src||'');
 
 async function github(endpoint,{method='GET',body,credential=token}={}){
   const response=await fetch('https://api.github.com'+endpoint,{
@@ -189,7 +190,9 @@ function syncSection(){
   $('#project-details').hidden=design;
   $('#logo-picker').hidden=!design;
   $('#gallery-title').textContent=design?'Карусель проекта':'Галерея проекта';
-  $('#gallery-note').textContent=(design?'Изображения будут показаны каруселью. ':'До пяти фото и GIF в ряд. Ширина зависит от пропорций файла. ')+ 'PNG, JPG, WebP и GIF. До 60 файлов, GIF зацикливаются и могут весить до 3 МБ.';
+  $('#gallery-label').textContent=design?'+ Добавить фото / GIF / MP4':'+ Добавить фото / GIF';
+  $('#galleryFiles').accept='image/png,image/jpeg,image/webp,image/gif'+(design?',video/mp4,.mp4':'');
+  $('#gallery-note').textContent=(design?'Карусель поддерживает MP4 до 12 МБ. ':'До пяти фото и GIF в ряд. Ширина зависит от пропорций файла. ')+ 'PNG, JPG, WebP и GIF. До 60 файлов, GIF зацикливаются и могут весить до 3 МБ.';
 }
 const colorFields=[
   {key:'backgroundColor',label:'Фон проекта',fallback:'#000000'},
@@ -287,18 +290,48 @@ function drawShots(){$('#shots').innerHTML=edit.shots.map((s,k)=>`<div class="it
 $('#shots').oninput=e=>{const t=e.target;if(t.dataset.f)edit.shots[t.dataset.k][t.dataset.f]=t.value};
 $('#shots').onclick=e=>{const b=e.target.closest('button');if(!b)return;const k=+b.dataset.k,S=edit.shots;
   if(b.dataset.a==='rm')S.splice(k,1);else{const j=b.dataset.a==='up'?k-1:k+1;[S[k],S[j]]=[S[j],S[k]]}drawShots()};
-function drawGallery(){$('#gallery').innerHTML=edit.gallery.map((s,k)=>`<div class="item"><img src="${s.preview||'/'+esc(s.src)}" alt="">
-  <div><p class="note">Изображение ${k+1}${s.width&&s.height?' · '+s.width+' × '+s.height:''}</p><input data-k="${k}" placeholder="Описание изображения для доступности" value="${esc(s.alt)}">
-  <div class="tools"><button class="ghost" data-k="${k}" data-a="up" aria-label="Выше изображение ${k+1}" ${k?'':'disabled'}>↑</button><button class="ghost" data-k="${k}" data-a="down" aria-label="Ниже изображение ${k+1}" ${k<edit.gallery.length-1?'':'disabled'}>↓</button><button class="ghost" data-k="${k}" data-a="rm">Убрать</button></div></div></div>`).join('')}
+function drawGallery(){$('#gallery').innerHTML=edit.gallery.map((s,k)=>{
+  const src=s.preview||'/'+esc(s.src),video=isVideo(s);
+  return `<div class="item">${video?`<video src="${src}" controls playsinline preload="metadata"></video>`:`<img src="${src}" alt="">`}
+  <div><p class="note">${video?'Видео':'Изображение'} ${k+1}${s.width&&s.height?' · '+s.width+' × '+s.height:''}</p><input data-k="${k}" placeholder="Описание для доступности" value="${esc(s.alt)}">
+  <div class="tools"><button class="ghost" data-k="${k}" data-a="up" aria-label="Переместить выше" ${k?'':'disabled'}>↑</button><button class="ghost" data-k="${k}" data-a="down" aria-label="Переместить ниже" ${k<edit.gallery.length-1?'':'disabled'}>↓</button><button class="ghost" data-k="${k}" data-a="rm">Убрать</button></div></div></div>`;
+}).join('')}
 $('#gallery').oninput=e=>{if(e.target.matches('input'))edit.gallery[+e.target.dataset.k].alt=e.target.value};
 $('#gallery').onclick=e=>{const b=e.target.closest('button');if(!b)return;const k=+b.dataset.k,S=edit.gallery;
   if(b.dataset.a==='rm'){const [s]=S.splice(k,1);if(s.preview)URL.revokeObjectURL(s.preview)}else{const j=b.dataset.a==='up'?k-1:k+1;if(j<0||j>=S.length)return;[S[k],S[j]]=[S[j],S[k]]}drawGallery()};
+async function prepareGalleryFile(file,allowVideo){
+  if(/\.mp4$/i.test(file.name)||file.type==='video/mp4'){
+    if(!allowVideo)throw new Error('MP4 можно добавить в разделе «Графический дизайн».');
+    if(file.size>12_000_000)throw new Error('MP4 должен весить не больше 12 МБ.');
+    const blob=file.type==='video/mp4'?file:new Blob([file],{type:'video/mp4'});
+    const preview=URL.createObjectURL(blob),video=document.createElement('video');
+    try{
+      const dimensions=await new Promise((resolve,reject)=>{
+        video.preload='metadata';
+        video.onloadedmetadata=()=>video.videoWidth&&video.videoHeight
+          ? resolve({width:video.videoWidth,height:video.videoHeight})
+          : reject(new Error('В MP4 нет видеодорожки.'));
+        video.onerror=()=>reject(new Error('Не удалось прочитать MP4.'));
+        video.src=preview;
+      });
+      return {blob,preview,...dimensions};
+    }catch(error){URL.revokeObjectURL(preview);throw error;}
+    finally{video.removeAttribute('src');video.load();}
+  }
+  if(!/^image\/(jpeg|png|webp|gif)$/.test(file.type))throw new Error('Поддерживаются PNG, JPG, WebP и GIF.');
+  const blob=await shrink(file),image=await createImageBitmap(blob);
+  const dimensions={width:image.width,height:image.height};
+  image.close();
+  return {blob,preview:URL.createObjectURL(blob),...dimensions};
+}
 let galleryLoading=false;
 $('#galleryFiles').onchange=async e=>{const current=edit,files=[...e.target.files];e.target.value='';if(galleryLoading)return;if(current.gallery.length+files.length>60){$('#galleryStatus').textContent='Можно добавить до 60 изображений. Удалите лишние или выберите меньше файлов.';return;}galleryLoading=true;$('#done').disabled=true;
-  try{for(const f of files){if(!/^image\/(jpeg|png|webp|gif)$/.test(f.type))throw new Error('Поддерживаются PNG, JPG, WebP и GIF');
-    $('#galleryStatus').textContent='Подготовка: '+f.name;const blob=await shrink(f),bm=await createImageBitmap(blob);const width=bm.width,height=bm.height;bm.close();
-    if(edit!==current)break;current.gallery.push({blob,preview:URL.createObjectURL(blob),alt:'',file:0,width,height});drawGallery()}
-    $('#galleryStatus').textContent='Изображения добавлены. Сохрани проект в черновик.';
+  try{for(const f of files){
+    $('#galleryStatus').textContent='Подготовка: '+f.name;
+    const item=await prepareGalleryFile(f,$('#f-section').value==='design');
+    if(edit!==current){URL.revokeObjectURL(item.preview);break;}
+    current.gallery.push({...item,alt:'',file:0});drawGallery()}
+    $('#galleryStatus').textContent='Файлы добавлены. Сохрани проект в черновик.';
   }catch(err){$('#galleryStatus').textContent='Ошибка: '+err.message}finally{galleryLoading=false;$('#done').disabled=logoLoading}};
 function drawFeats(){$('#feats').innerHTML=edit.feats.map((f,k)=>`<div class="item f"><div><input data-k="${k}" data-f="h" placeholder="Название, например «Импорт выписки»" value="${esc(f.h)}">
   <textarea data-k="${k}" data-f="p" placeholder="Короткое описание" style="min-height:52px;margin-bottom:6px">${esc(f.p)}</textarea>
@@ -379,7 +412,7 @@ async function commitProjects(projects,files){
   const content='window.CUSTOM='+JSON.stringify(projects,null,1)+';\nwindow.CATS='+JSON.stringify(cats)+';\n';
   const contentBlob=new Blob([content]);
   const projectFile=await b64(contentBlob);
-  if(!media.length&&!deletions.length){
+  if((!media.length&&!deletions.length)||media.reduce((size,file)=>size+file.contents.length,0)>8_000_000){
     await saveWithContentsApi(projectFile,media);
     return;
   }
@@ -417,7 +450,7 @@ async function publish(){if(busy||!dirty||draftConflict||$('#save-token').disabl
     await draftWrite.catch(()=>{});
     let n=0,total=list.reduce((a,p)=>a+projectMedia(p).filter(s=>s.blob&&!files.some(file=>file.path===s.src)).length,0);
     for(const p of list)for(const s of projectMedia(p))if(s.blob&&!files.some(file=>file.path===s.src)){$('#bmsg').textContent=`Подготовка фото ${++n}/${total}…`;
-      const path=`img/${p.id}/${crypto.randomUUID()}.${{'image/jpeg':'jpg','image/png':'png','image/gif':'gif'}[s.blob.type]||'webp'}`;
+      const path=`img/${p.id}/${crypto.randomUUID()}.${{'image/jpeg':'jpg','image/png':'png','image/gif':'gif','video/mp4':'mp4'}[s.blob.type]||'webp'}`;
       if(!mediaPath.test(path))throw new Error('Некорректный путь изображения.');
       files.push({path,contents:await b64(s.blob),sha:await gitBlobSha(s.blob)});s.src=path}
     $('#bmsg').textContent='Публикация…';

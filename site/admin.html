@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; connect-src https://api.github.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' blob: data:; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; connect-src https://api.github.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' blob: data:; media-src 'self' blob:; form-action 'none'; base-uri 'none'; object-src 'none'">
 <title>Админка</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&display=swap">
 <style>
@@ -83,7 +83,7 @@ button.dark{background:#f2f2f7;color:#000;border-color:#f2f2f7}
 .logo-picker{margin:0 0 14px}
 .logo-picker input{width:auto;max-width:100%}
 .logo-preview{width:44px;height:44px;object-fit:contain;background:#000;border-radius:5px}
-#gallery .item img{object-fit:contain;background:#090909}
+#gallery .item :is(img,video){width:100%;aspect-ratio:1.35;object-fit:contain;background:#090909}
 </style>
 </head>
 <body>
@@ -133,7 +133,7 @@ button.dark{background:#f2f2f7;color:#000;border-color:#f2f2f7}
     <h3 class="sec" id="gallery-title">Фото и GIF</h3>
     <div class="pad"><p class="note" id="gallery-note"></p></div>
     <div id="gallery"></div>
-    <div class="pad"><label class="btn" style="display:inline-block;margin:0">+ Добавить фото / GIF<input type="file" id="galleryFiles" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden></label><p class="note" id="galleryStatus" role="status"></p></div>
+    <div class="pad"><label class="btn" style="display:inline-block;margin:0"><span id="gallery-label">+ Добавить фото / GIF</span><input type="file" id="galleryFiles" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden></label><p class="note" id="galleryStatus" role="status"></p></div>
     <details id="project-details">
       <summary class="sec">Устройство, ссылки и дополнительные сведения</summary>
       <div class="pad">
@@ -168,6 +168,6 @@ button.dark{background:#f2f2f7;color:#000;border-color:#f2f2f7}
 <script src="gallery-media.js?v=1"></script>
 <script src="project-sections.js?v=2"></script>
 <script src="admin-device.js?v=2"></script>
-<script src="admin.js?v=5"></script>
+<script src="admin.js?v=6"></script>
 </body>
 </html>
