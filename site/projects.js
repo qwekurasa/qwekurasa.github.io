@@ -315,7 +315,7 @@ window.CUSTOM=[
   "device": "phone",
   "folder": "1",
   "description": "",
-  "descriptionHeading": "выавыа",
+  "descriptionHeading": "motion design p.1",
   "section": "design",
   "titleColor": "#ffffff",
   "descriptionColor": "#424242",
