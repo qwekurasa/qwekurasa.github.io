@@ -395,6 +395,13 @@ window.CUSTOM=[
   "descriptionColor": "#363636",
   "gallery": [
    {
+    "src": "img/design-template-1/f34c6efd-a2f6-4e93-a653-80146479276f.png",
+    "alt": "",
+    "file": 0,
+    "width": 1254,
+    "height": 1254
+   },
+   {
     "src": "img/design-template-1/1qe4p8zf.gif",
     "alt": "",
     "file": 0,
