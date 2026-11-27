@@ -7,7 +7,7 @@
  host.prepend(wrap);const viewer=wrap.querySelector('model-viewer');
  const hint=document.createElement('p');
  hint.id='modelRotationHint';hint.className='interaction-hint home-rotation-hint';
- hint.innerHTML='<span aria-hidden="true">↔</span><span class="hint-mouse">Потяните модель для поворота</span><span class="hint-touch">Проведите пальцем для поворота</span>';
+ hint.innerHTML='<span class="hint-icon" aria-hidden="true">↔</span><span class="hint-copy"><span class="hint-mouse">Потяните модель для поворота</span><span class="hint-touch">Проведите пальцем для поворота</span></span>';
  viewer.setAttribute('aria-describedby',hint.id);
  wrap.append(hint);
  const doll=document.createElement('model-viewer');doll.id='artemDoll';
