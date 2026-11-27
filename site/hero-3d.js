@@ -25,6 +25,10 @@
  .home-model #artemDoll{position:absolute;left:0;top:23%;width:27%;height:clamp(15%,calc(50svh + 27% - 168px),58%)}
  .home-rotation-hint{position:absolute;top:72%;left:min(72%,calc(100% - 115px));transform:translateX(-50%);opacity:0;pointer-events:none;transition:none}
  .home-model:has(#deskModel[data-ready="true"]):has(model-viewer:is([data-hovered],:focus-visible)) .home-rotation-hint{opacity:1}
+ .home-model:has(model-viewer[data-hovered]) .home-rotation-hint{left:var(--hint-x);top:var(--hint-y);transform:none}
+ .home-model:has(model-viewer[data-hovered]) .hint-arrow{scale:var(--arrow-x,1) var(--arrow-y,1)}
+ .home-model:has(model-viewer[data-hovered]) .home-rotation-hint[data-flip-x] .hint-arrow{left:auto;right:10px;--arrow-x:-1}
+ .home-model:has(model-viewer[data-hovered]) .home-rotation-hint[data-flip-y] .hint-arrow{top:calc(100% + 2px);bottom:auto;--arrow-y:-1}
  @media(hover:none){#deskModel[data-ready="true"]:not([data-user-rotated])~.home-rotation-hint{opacity:1}}
  .model-loading{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:12px var(--sans);color:#888}
  .model-error{position:absolute;left:0;right:0;top:48%;text-align:center;font-size:13px}.model-error a{text-decoration:underline}
@@ -160,6 +164,17 @@
   if(Math.hypot(e.clientX-p.x,e.clientY-p.y)<=7&&viewer.positionAndNormalFromPoint(e.clientX,e.clientY))openProjects();
  },true);
  viewer.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);press=null;},true);
+ function positionHoverHint(x,y){
+  const bounds=wrap.getBoundingClientRect();
+  const width=hint.offsetWidth,height=hint.offsetHeight;
+  const flipX=x+width+24>innerWidth,flipY=y+height+32>innerHeight;
+  const left=Math.min(innerWidth-width-8,Math.max(8,flipX?x-width-14:x+14));
+  const top=Math.min(innerHeight-height-8,Math.max(8,flipY?y-height-24:y+24));
+  hint.style.setProperty('--hint-x',(left-bounds.left)+'px');
+  hint.style.setProperty('--hint-y',(top-bounds.top)+'px');
+  hint.toggleAttribute('data-flip-x',flipX);
+  hint.toggleAttribute('data-flip-y',flipY);
+ }
  for(const model of [viewer,doll]){
   let hoverFrame=0;
   const clearHover=()=>{
@@ -170,7 +185,9 @@
    if(e.pointerType==='touch'||viewer.dataset.ready!=='true'||!model.dataset.surfaceReady||transitioning)return;
    cancelAnimationFrame(hoverFrame);
    hoverFrame=requestAnimationFrame(()=>{
-    model.toggleAttribute('data-hovered',Boolean(model.positionAndNormalFromPoint(e.clientX,e.clientY)));
+    const hit=Boolean(model.positionAndNormalFromPoint(e.clientX,e.clientY));
+    if(hit)positionHoverHint(e.clientX,e.clientY);
+    model.toggleAttribute('data-hovered',hit);
    });
   },true);
   model.addEventListener('pointerleave',clearHover);
