@@ -1,5 +1,6 @@
 (() => {
   const isVideo = src => /\.mp4$/i.test(src);
+  const isGif = src => /\.gif$/i.test(src);
 
   function mount(root, media) {
     if (!media.length) return () => {};
@@ -11,7 +12,9 @@
     const wrap = value => ((value % count) + count) % count;
     const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
     let width = 0, height = 0, angle = 0, target = 0, direction = 1;
-    let frame = 0, timer = 0, drag = null, ignoreClick = false, visible = false;
+    let frame = 0, drag = null, ignoreClick = false, visible = false, playback = null;
+    const gifFiles = new Map();
+    const downloads = new AbortController();
     const viewer = document.createElement('dialog');
     viewer.className = 'design-viewer';
     viewer.setAttribute('aria-label', 'Просмотр медиа проекта');
@@ -95,7 +98,7 @@
       label.innerHTML = alt;
       if (video) {
         element.muted = true;
-        element.loop = true;
+        element.loop = count === 1;
         element.playsInline = true;
         element.preload = 'metadata';
         card.dataset.video = '';
@@ -180,27 +183,85 @@
       });
     }
 
-    function schedule() {
+    function stopPlayback() {
+      if (!playback) return;
+      const { slide, controller, timer, gifUrl } = playback;
+      playback = null;
+      controller.abort();
       clearTimeout(timer);
-      for (const [index, slide] of slides.entries()) {
-        if (!slide.video) continue;
-        if (index === wrap(target) && visible && !document.hidden && !viewer.open && !drag && !motion.matches) {
-          slide.element.play().catch(() => {});
-        } else slide.element.pause();
+      if (slide.video) slide.element.pause();
+      if (gifUrl) {
+        slide.element.src = slide.src;
+        URL.revokeObjectURL(gifUrl);
       }
-      if (count < 2 || !stage.isConnected || viewer.open || !visible || document.hidden || motion.matches || drag) return;
-      timer = setTimeout(() => go(target + 1), 3000);
+    }
+
+    function loadGif(src) {
+      if (!gifFiles.has(src)) {
+        const file = fetch(src, { signal: downloads.signal }).then(async response => {
+          if (!response.ok) throw new Error('GIF unavailable');
+          const blob = await response.blob();
+          return { blob, duration: await window.GalleryMedia.gifDuration(blob) };
+        });
+        gifFiles.set(src, file);
+        file.catch(() => gifFiles.delete(src));
+      }
+      return gifFiles.get(src);
+    }
+
+    function schedule() {
+      if (!stage.isConnected || viewer.open || !visible || document.hidden || motion.matches || drag || Math.abs(angle - target) > .001) {
+        stopPlayback();
+        return;
+      }
+      const slide = slides[wrap(target)];
+      if (playback?.slide === slide) return;
+      stopPlayback();
+      const run = playback = { slide, controller: new AbortController() };
+      const { element } = slide;
+      const options = { signal: run.controller.signal, once: true };
+      const advance = () => { if (playback === run && count > 1) go(target + 1); };
+      const after = duration => { if (playback === run && !run.timer && count > 1) run.timer = setTimeout(advance, duration); };
+      if (slide.video) {
+        if (slide.restart && element.readyState) element.currentTime = 0;
+        slide.restart = false;
+        if (element.ended) { advance(); return; }
+        element.addEventListener('ended', advance, options);
+        element.addEventListener('error', () => after(3000), options);
+        if (element.error) after(3000);
+        else element.play().catch(error => { if (error.name !== 'AbortError') after(3000); });
+      } else if (isGif(slide.src)) {
+        loadGif(slide.src).then(async ({ blob, duration }) => {
+          if (playback !== run) return;
+          run.gifUrl = URL.createObjectURL(blob);
+          element.src = run.gifUrl;
+          await element.decode();
+          after(duration);
+        }).catch(() => after(3000));
+      } else {
+        if (element.complete) after(3000);
+        else {
+          element.addEventListener('load', () => after(3000), options);
+          element.addEventListener('error', () => after(3000), options);
+        }
+      }
     }
 
     function go(next) {
       cancelAnimationFrame(frame);
-      if (next !== target) direction = Math.sign(next - target);
+      if (next !== target) {
+        stopPlayback();
+        const outgoing = slides[wrap(target)];
+        if (outgoing.video) outgoing.restart = true;
+        direction = Math.sign(next - target);
+      }
       target = next;
       updateControls();
       const start = angle;
       if (motion.matches || Math.abs(start - target) < .001) {
         angle = target;
         draw();
+        schedule();
       } else {
         const started = performance.now();
         function turn(now) {
@@ -209,10 +270,10 @@
           angle = start + (target - start) * eased;
           draw();
           if (t < 1) frame = requestAnimationFrame(turn);
+          else schedule();
         }
         frame = requestAnimationFrame(turn);
       }
-      schedule();
     }
 
     resize();
@@ -229,8 +290,7 @@
       if (count < 2 || !event.isPrimary || event.button !== 0) return;
       ignoreClick = false;
       drag = { pointer: event.pointerId, x: event.clientX, angle, moved: false };
-      clearTimeout(timer);
-      for (const slide of slides) if (slide.video) slide.element.pause();
+      stopPlayback();
     });
     stage.addEventListener('pointermove', event => {
       if (drag?.pointer !== event.pointerId) return;
@@ -280,9 +340,9 @@
     motion.addEventListener('change', schedule);
     return () => {
       cancelAnimationFrame(frame);
-      clearTimeout(timer);
+      stopPlayback();
+      downloads.abort();
       stopVideo();
-      for (const slide of slides) if (slide.video) slide.element.pause();
       viewer.remove();
       observer.disconnect();
       sizeObserver.disconnect();
