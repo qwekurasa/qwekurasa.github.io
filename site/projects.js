@@ -326,6 +326,69 @@ window.CUSTOM=[
   "features": []
  },
  {
+  "id": "mwyvjapn",
+  "name": "motion design p.2",
+  "type": "",
+  "created": "",
+  "stack": "",
+  "platforms": "",
+  "link": "",
+  "pwa": "",
+  "device": "phone",
+  "folder": "1",
+  "description": "Генерация реалистичных людей с помощью модели nano banano pro. \nРеференс - фото одежды. Анимации для проекта магазина одежды - https://t.me/temptstore",
+  "descriptionHeading": "tempt",
+  "section": "design",
+  "backgroundColor": "#ffffff",
+  "textColor": "#4a4a4a",
+  "gallery": [
+   {
+    "src": "img/mwyvjapn/4bc374b1-6b9d-4430-8eb0-cdb4c9c6d62e.mp4",
+    "alt": "",
+    "file": 0,
+    "width": 720,
+    "height": 1280
+   },
+   {
+    "src": "img/mwyvjapn/a77708e3-015e-4936-8415-5889e2491b87.jpg",
+    "alt": "",
+    "file": 0,
+    "width": 1024,
+    "height": 1024
+   },
+   {
+    "src": "img/mwyvjapn/324e5d37-92b0-4389-b1fd-40899f559945.jpg",
+    "alt": "",
+    "file": 0,
+    "width": 1024,
+    "height": 1024
+   },
+   {
+    "src": "img/mwyvjapn/32a55662-2de0-46c1-835f-c3ec49e3e878.jpg",
+    "alt": "",
+    "file": 0,
+    "width": 1280,
+    "height": 1280
+   },
+   {
+    "src": "img/mwyvjapn/fd458290-8ddf-4736-9fce-3dca376f8706.jpg",
+    "alt": "",
+    "file": 0,
+    "width": 1280,
+    "height": 1280
+   },
+   {
+    "src": "img/mwyvjapn/af0937d2-3e4e-4101-8459-b84498d90419.jpg",
+    "alt": "",
+    "file": 0,
+    "width": 1280,
+    "height": 1280
+   }
+  ],
+  "shots": [],
+  "features": []
+ },
+ {
   "id": "design-template-1",
   "name": "thinkinbrain - идейник",
   "type": "",
@@ -509,69 +572,6 @@ window.CUSTOM=[
    }
   ],
   "logo": "img/mwxlrpu6/0c21c856-5fa9-4d4c-ad33-db1dc332415e.png",
-  "shots": [],
-  "features": []
- },
- {
-  "id": "mwyvjapn",
-  "name": "motion design p.2",
-  "type": "",
-  "created": "",
-  "stack": "",
-  "platforms": "",
-  "link": "",
-  "pwa": "",
-  "device": "phone",
-  "folder": "1",
-  "description": "Генерация реалистичных людей с помощью модели nano banano pro. \nРеференс - фото одежды. Анимации для проекта магазина одежды - https://t.me/temptstore",
-  "descriptionHeading": "tempt",
-  "section": "design",
-  "backgroundColor": "#ffffff",
-  "textColor": "#4a4a4a",
-  "gallery": [
-   {
-    "src": "img/mwyvjapn/4bc374b1-6b9d-4430-8eb0-cdb4c9c6d62e.mp4",
-    "alt": "",
-    "file": 0,
-    "width": 720,
-    "height": 1280
-   },
-   {
-    "src": "img/mwyvjapn/a77708e3-015e-4936-8415-5889e2491b87.jpg",
-    "alt": "",
-    "file": 0,
-    "width": 1024,
-    "height": 1024
-   },
-   {
-    "src": "img/mwyvjapn/324e5d37-92b0-4389-b1fd-40899f559945.jpg",
-    "alt": "",
-    "file": 0,
-    "width": 1024,
-    "height": 1024
-   },
-   {
-    "src": "img/mwyvjapn/32a55662-2de0-46c1-835f-c3ec49e3e878.jpg",
-    "alt": "",
-    "file": 0,
-    "width": 1280,
-    "height": 1280
-   },
-   {
-    "src": "img/mwyvjapn/fd458290-8ddf-4736-9fce-3dca376f8706.jpg",
-    "alt": "",
-    "file": 0,
-    "width": 1280,
-    "height": 1280
-   },
-   {
-    "src": "img/mwyvjapn/af0937d2-3e4e-4101-8459-b84498d90419.jpg",
-    "alt": "",
-    "file": 0,
-    "width": 1280,
-    "height": 1280
-   }
-  ],
   "shots": [],
   "features": []
  }
