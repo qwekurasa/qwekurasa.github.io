@@ -24,15 +24,6 @@
       <button type="button" data-close aria-label="Закрыть" autofocus>×</button>
     </header><div class="design-viewer-media"><img alt=""><video controls playsinline preload="metadata" hidden></video></div>`;
     root.append(viewer);
-    const hint = document.createElement('p');
-    hint.className = 'interaction-hint gallery-hint';
-    hint.id = 'designGalleryHint';
-    hint.innerHTML = `<span class="hint-arrow" aria-hidden="true">↖</span>
-      <span class="hint-mouse">${media.length>1?'Потяните, чтобы листать · нажмите, чтобы открыть':'Нажмите, чтобы открыть'}</span>
-      <span class="hint-touch">${media.length>1?'Смахните, чтобы листать · коснитесь, чтобы открыть':'Коснитесь, чтобы открыть'}</span>`;
-    root.append(hint);
-    stage.setAttribute('aria-describedby',hint.id);
-    trackInteractionHint(stage,hint,root,event=>!viewer.open&&Boolean(event.target.closest('.design-slide[aria-hidden="false"]')));
     const viewerMedia = viewer.querySelector('.design-viewer-media');
     const fullImage = viewerMedia.querySelector('img');
     const fullVideo = viewerMedia.querySelector('video');
@@ -98,7 +89,6 @@
       card.type = 'button';
       card.className = 'design-slide';
       card.setAttribute('aria-haspopup', 'dialog');
-      card.setAttribute('aria-describedby',hint.id);
       const video = isVideo(src);
       const element = video ? document.createElement('video') : new Image();
       const label = document.createElement('textarea');

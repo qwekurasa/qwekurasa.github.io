@@ -434,14 +434,7 @@ body[data-v=index]{background:#fff}
 .design-header{display:grid;grid-template-columns:minmax(96px,1fr) minmax(0,2fr) minmax(96px,1fr);align-items:center;margin-bottom:24px}
 .design-title{display:flex;justify-content:center;align-items:center;gap:.55em;margin:0;text-align:center;overflow-wrap:anywhere;font-size:clamp(11px,1vw,13px);font-weight:500;line-height:1.4;color:var(--project-title,var(--project-text,#e5e5ea))}
 .design-title-logo{display:block;flex:none;width:auto;height:2em;max-width:6em;object-fit:contain}
-.design-carousel{position:relative;width:100%;margin:0 auto 30px}
-.gallery-hint{position:absolute;z-index:1;bottom:0;left:50%;transform:translateX(-50%);opacity:0;pointer-events:none}
-.design-carousel:has(.design-carousel-stage:focus-visible,.design-slide:focus-visible) .gallery-hint{opacity:1}
-.design-carousel:has(dialog[open],.is-dragging) .gallery-hint{opacity:0}
-@media(hover:none){
- .gallery-hint{position:relative;opacity:1;margin-top:10px;white-space:normal}
- .gallery-hint .hint-arrow{display:none}
-}
+.design-carousel{width:100%;margin:0 auto 30px}
 .design-carousel-stage{position:relative;height:clamp(220px,48vw,460px);overflow:visible;isolation:isolate;perspective:900px}
 .design-slide{position:absolute;inset:0;margin:auto;padding:0;display:grid;place-items:center;border:0;background:transparent;color:inherit;-webkit-tap-highlight-color:transparent}
 .design-slide[aria-hidden="true"]{pointer-events:none}
@@ -506,7 +499,7 @@ body[data-v=index]{background:#fff}
 <script src="project-cat-3d.js?v=1"></script>
 <script src="phone.js?v=baecc87"></script>
 <script src="project-sections.js?v=2"></script>
-<script src="design-carousel.js?v=9"></script>
+<script src="design-carousel.js?v=10"></script>
 <script src="case-files.js?v=five-per-row"></script>
 <script>
 const $=s=>document.querySelector(s);
