@@ -23,8 +23,9 @@
  .home-model model-viewer:not([data-surface-ready]){visibility:hidden}
  .home-model #deskModel{position:absolute;left:22%;width:78%;height:100%}
  .home-model #artemDoll{position:absolute;left:0;top:23%;width:27%;height:clamp(15%,calc(50svh + 27% - 168px),58%)}
- .home-rotation-hint{position:absolute;top:72%;left:min(72%,calc(100% - 115px));transform:translateX(-50%);opacity:0;pointer-events:none}
- #deskModel[data-ready="true"]:not([data-user-rotated])~.home-rotation-hint{opacity:1}
+ .home-rotation-hint{position:absolute;top:72%;left:min(72%,calc(100% - 115px));transform:translateX(-50%);opacity:0;pointer-events:none;transition:none}
+ .home-model:has(#deskModel[data-ready="true"]):has(model-viewer:is([data-hovered],:focus-visible)) .home-rotation-hint{opacity:1}
+ @media(hover:none){#deskModel[data-ready="true"]:not([data-user-rotated])~.home-rotation-hint{opacity:1}}
  .model-loading{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:12px var(--sans);color:#888}
  .model-error{position:absolute;left:0;right:0;top:48%;text-align:center;font-size:13px}.model-error a{text-decoration:underline}
  @media(max-width:700px){.home-model{width:100vw;height:70svh}}
@@ -43,7 +44,6 @@
    for(const part of parts){part.mesh.geometry=part.original;part.geometry.dispose();}
    scene?.queueRender?.();unfolding=false;finishUnfold=null;
    viewer.dataset.surfaceReady='true';viewer.dataset.ready='true';viewer.dataset.unfold='complete';
-   revealInteractionHint(hint);
    viewer.setAttribute('camera-controls','');syncRotation();
   };
   if(reduced.matches||!model||typeof scene.queueRender!=='function'){restore();return;}
@@ -160,6 +160,22 @@
   if(Math.hypot(e.clientX-p.x,e.clientY-p.y)<=7&&viewer.positionAndNormalFromPoint(e.clientX,e.clientY))openProjects();
  },true);
  viewer.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);press=null;},true);
+ for(const model of [viewer,doll]){
+  let hoverFrame=0;
+  const clearHover=()=>{
+   cancelAnimationFrame(hoverFrame);
+   model.removeAttribute('data-hovered');
+  };
+  model.addEventListener('pointermove',e=>{
+   if(e.pointerType==='touch'||viewer.dataset.ready!=='true'||!model.dataset.surfaceReady||transitioning)return;
+   cancelAnimationFrame(hoverFrame);
+   hoverFrame=requestAnimationFrame(()=>{
+    model.toggleAttribute('data-hovered',Boolean(model.positionAndNormalFromPoint(e.clientX,e.clientY)));
+   });
+  },true);
+  model.addEventListener('pointerleave',clearHover);
+  model.addEventListener('pointercancel',clearHover);
+ }
  const rememberRotation=e=>{
   if(e.detail?.source==='user-interaction')viewer.dataset.userRotated='true';
  };
