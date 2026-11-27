@@ -113,25 +113,26 @@ body[data-v=project]{background:#fff}
 @media(max-width:1799px){.st.pad{grid-template-columns:minmax(0,520px) minmax(0,520px);justify-content:center;align-items:start;column-gap:40px}.st.pad .st-phone{grid-area:1/1/2/3;width:min(900px,96vw);margin:0 0 20px}.st.pad>.st-fdw{grid-area:2/1;justify-self:center}.st.pad .st-desk{grid-area:2/2;max-width:none}}
 @media(max-width:1079px){.st.pad{grid-template-columns:minmax(0,620px)}.st.pad>.st-fdw{grid-area:3/1;padding:0}.st.pad .st-desk{grid-area:2/1;justify-self:center;width:100%}.st.pad .st-phone{grid-area:1/1}}
 .st-phone:empty{display:none}
-.interaction-hint{display:inline-flex;align-items:center;gap:8px;margin:0;padding:6px 11px 6px 7px;border:1px solid #535357;border-radius:7px;background:linear-gradient(#28282b,#19191b);box-shadow:inset 0 1px #ffffff13,0 5px 18px #0008;color:#d6d6da;font:600 12px/1.35 var(--sans);white-space:nowrap;text-align:center;transition:opacity .3s,border-color .2s}
-.hint-icon{display:grid;place-items:center;flex:none;width:22px;height:22px;border:1px solid #55555a;border-radius:4px;background:#232326;color:#d6d6da;font:14px/1 var(--sans)}
-.hint-copy{display:block}
+.interaction-hint{display:inline-flex;align-items:center;margin:0;padding:7px 10px;border:1px solid #535357;border-radius:6px;background:#202023;box-shadow:0 4px 12px #0008;color:#dedee2;font:600 12px/1.35 var(--sans);white-space:nowrap;text-align:left;transition:opacity .3s,border-color .2s}
+.hint-arrow{position:absolute;bottom:calc(100% + 2px);left:var(--hint-arrow-left,10px);color:#b3b3ba;font:20px/1 var(--sans)}
+.hint-letter{position:relative;display:inline-block}
+.hint-accessible{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media(prefers-reduced-motion:no-preference){
- @supports(background-clip:text){
-  .hint-copy{background:linear-gradient(105deg,#c9c9cf 40%,#fff 50%,#c9c9cf 60%) 100% 50%/240% 100%;background-clip:text;color:transparent;animation:hint-sweep 4.8s ease-in-out infinite}
-  .home-rotation-hint .hint-copy{animation-play-state:paused}
-  #deskModel[data-ready="true"]:not([data-user-rotated])~.home-rotation-hint .hint-copy{animation-play-state:running}
-  @keyframes hint-sweep{0%{background-position:100% 50%}34%,100%{background-position:0 50%}}
- }
+ .interaction-hint[data-revealed] .hint-glyph{animation:hint-letter-in .22s steps(1,end) var(--delay) both}
+ .interaction-hint[data-revealed] .hint-letter::before{content:"0";position:absolute;inset:0;color:#82828b;text-align:center;animation:hint-bits .22s linear var(--delay) both}
+ .interaction-hint[data-revealed] .hint-arrow{animation:hint-arrow-in .24s ease-out 1.62s both}
+ @keyframes hint-letter-in{from{opacity:0}to{opacity:1}}
+ @keyframes hint-bits{0%,100%{opacity:0}16%,45%{content:"0";opacity:1}46%,82%{content:"1";opacity:1}}
+ @keyframes hint-arrow-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 }
-@media(forced-colors:active){.hint-copy{animation:none;background:none;color:CanvasText}}
 .interaction-hint .hint-touch{display:none}
 @media(pointer:coarse){
  .interaction-hint .hint-mouse{display:none}
  .interaction-hint .hint-touch{display:inline}
 }
 .device-frame{position:relative}
-.device-hint{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);filter:invert(1)}
+.device-hint{position:absolute;z-index:1;top:59%;left:5%;transform:translateX(-27%);filter:invert(1);--hint-arrow-left:36%}
+.device-hint-tablet{top:auto;bottom:10%;left:7%;transform:translateX(-16%);pointer-events:none;--hint-arrow-left:27%}
 button.device-hint:hover,button.device-hint:focus-visible{border-color:#929297;background:#29292b}
 .device-frame:has(.ph-app.open) .device-hint{visibility:hidden;opacity:0}
 .device-frame:has(.pd-web:focus) .device-hint{opacity:.45}
@@ -602,6 +603,29 @@ function renderDesignProject(project){
   window.ProjectCat?.mount(host);
   disposeDesignCarousel=window.DesignCarousel.mount(host.querySelector('.design-carousel'),project.gallery);
 }
+function revealInteractionHint(hint){
+  for(const copy of hint.querySelectorAll('.hint-copy')){
+    const text=copy.textContent;
+    const accessible=document.createElement('span');
+    accessible.className='hint-accessible';
+    accessible.textContent=text;
+    const animated=document.createElement('span');
+    animated.setAttribute('aria-hidden','true');
+    const letters=Array.from(text);
+    letters.forEach((char,index)=>{
+      if(char===' '){animated.append(' ');return;}
+      const letter=document.createElement('span'),glyph=document.createElement('span');
+      letter.className='hint-letter';
+      glyph.className='hint-glyph';
+      glyph.textContent=char;
+      letter.style.setProperty('--delay',(1360*index/Math.max(1,letters.length-1))+'ms');
+      letter.append(glyph);
+      animated.append(letter);
+    });
+    copy.replaceChildren(accessible,animated);
+  }
+  hint.dataset.revealed='';
+}
 function renderProject(id){
   const p=P.find(q=>q.id===id)||P[0];
   applyProjectColors($('#project'),p);
@@ -618,8 +642,8 @@ function renderProject(id){
   $('#project').innerHTML=`<svg width="0" height="0" style="position:absolute"><defs><pattern id="dz" width="2" height="2" patternUnits="userSpaceOnUse"><rect width="1" height="1"/><rect x="1" y="1" width="1" height="1"/></pattern></defs></svg>
   <nav class="st-menu st-top"><a href="#map">qwekurasa</a><a href="#p-${pv.id}">← ${pv.name}</a><a href="#p-${nx.id}">${nx.name} →</a></nav>
   <div class="st">${pad&&fold?`<div class="st-fdw">${fold}</div>`:''}<aside class="st-phone"><div class="device-frame"><div id="stPhone"></div>${p.pwa?(pad?
-    '<p class="interaction-hint device-hint" id="deviceHint"><span class="hint-icon" aria-hidden="true">↗</span><span class="hint-copy">Сайт работает внутри макета</span></p>':
-    '<button type="button" class="interaction-hint device-hint" id="deviceHint"><span class="hint-icon" aria-hidden="true">↗</span><span class="hint-copy">Откройте приложение в iPhone</span></button>'):''}</div></aside><div class="st-desk">
+    '<p class="interaction-hint device-hint device-hint-tablet" id="deviceHint"><span class="hint-arrow" aria-hidden="true">↗</span><span class="hint-copy">Сайт работает внутри макета</span></p>':
+    '<button type="button" class="interaction-hint device-hint" id="deviceHint"><span class="hint-arrow" aria-hidden="true">↗</span><span class="hint-copy">Откройте приложение в iPhone</span></button>'):''}</div></aside><div class="st-desk">
     ${W('st-br','System Browser',`<div class="st-panes">
       <ul class="st-pane">${group.map(q=>`<li${q===p?' class="on"':''}><a href="#p-${q.id}">Projects-${q.name}</a></li>`).join('')}</ul>
       <ul class="st-pane">${[p.code,p.type,p.created||'—'].map((x,j)=>`<li${j===1?' class="on"':''}>${x}</li>`).join('')}<li>------------</li></ul>
@@ -633,6 +657,7 @@ function renderProject(id){
   else window.Phone?.mount($('#stPhone'),{id:p.id,pwa:p.pwa,name:p.name,icon:p.icon,screens:shots.map(w=>`<img src="${w.img}" alt="">`)});
   const deviceHint=$('#deviceHint');
   if(deviceHint){
+    revealInteractionHint(deviceHint);
     if(pad)$('#stPhone .pd-web')?.setAttribute('aria-describedby',deviceHint.id);
     else deviceHint.onclick=()=>$('#stPhone [data-app="b"]')?.click();
   }
@@ -750,6 +775,6 @@ function carousel(box,p){const ring=box.querySelector('.ixc-ring'),w=p.wins||[];
 })();
 </script>
 <script type="module" src="model-viewer.min.js"></script>
-<script src="hero-3d.js?v=room-7"></script>
+<script src="hero-3d.js?v=room-8"></script>
 </body>
 </html>

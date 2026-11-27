@@ -7,7 +7,7 @@
  host.prepend(wrap);const viewer=wrap.querySelector('model-viewer');
  const hint=document.createElement('p');
  hint.id='modelRotationHint';hint.className='interaction-hint home-rotation-hint';
- hint.innerHTML='<span class="hint-icon" aria-hidden="true">↔</span><span class="hint-copy"><span class="hint-mouse">Потяните модель для поворота</span><span class="hint-touch">Проведите пальцем для поворота</span></span>';
+ hint.innerHTML='<span class="hint-arrow" aria-hidden="true">↖</span><span class="hint-copy hint-mouse">Потяните модель для поворота</span><span class="hint-copy hint-touch">Проведите пальцем для поворота</span>';
  viewer.setAttribute('aria-describedby',hint.id);
  wrap.append(hint);
  const doll=document.createElement('model-viewer');doll.id='artemDoll';
@@ -23,7 +23,7 @@
  .home-model model-viewer:not([data-surface-ready]){visibility:hidden}
  .home-model #deskModel{position:absolute;left:22%;width:78%;height:100%}
  .home-model #artemDoll{position:absolute;left:0;top:23%;width:27%;height:clamp(15%,calc(50svh + 27% - 168px),58%)}
- .home-rotation-hint{position:absolute;top:0;left:61%;transform:translateX(-50%);opacity:0;pointer-events:none}
+ .home-rotation-hint{position:absolute;top:72%;left:min(72%,calc(100% - 115px));transform:translateX(-50%);opacity:0;pointer-events:none}
  #deskModel[data-ready="true"]:not([data-user-rotated])~.home-rotation-hint{opacity:1}
  .model-loading{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:12px var(--sans);color:#888}
  .model-error{position:absolute;left:0;right:0;top:48%;text-align:center;font-size:13px}.model-error a{text-decoration:underline}
@@ -43,6 +43,7 @@
    for(const part of parts){part.mesh.geometry=part.original;part.geometry.dispose();}
    scene?.queueRender?.();unfolding=false;finishUnfold=null;
    viewer.dataset.surfaceReady='true';viewer.dataset.ready='true';viewer.dataset.unfold='complete';
+   revealInteractionHint(hint);
    viewer.setAttribute('camera-controls','');syncRotation();
   };
   if(reduced.matches||!model||typeof scene.queueRender!=='function'){restore();return;}
