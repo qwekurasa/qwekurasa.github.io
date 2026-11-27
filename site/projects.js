@@ -248,6 +248,142 @@ window.CUSTOM=[
   ]
  },
  {
+  "id": "mwxlqje2",
+  "name": "branding p.1",
+  "type": "",
+  "created": "",
+  "stack": "",
+  "platforms": "",
+  "link": "",
+  "pwa": "",
+  "device": "phone",
+  "folder": "1",
+  "description": "Для manlys я хотел сделать образ, который цепляет ещё до того, как человек начнёт рассматривать саму сумку. Нарисовал тонкий рукописный логотип, похожий на личную подпись, и орнаментальную монограмму M, которую можно использовать отдельно от названия. В брендбуке показал её построение на фактурной бумаге — хотелось, чтобы у бренда чувствовался свой почерк. На сумке сделал тиснение и показал его крупным планом, чтобы через изображение передать фактуру кожи и внимание к деталям. Для рекламы придумал сцену: девушка подходит, забирает сумку и убегает — простой сюжет, который добавляет характер и движение. Всё это собирал вокруг одной задачи: заинтересовать человека, вызвать желание рассмотреть вещь поближе и помочь запомнить manlys",
+  "descriptionHeading": "magazine bag \"manlys\"",
+  "section": "design",
+  "backgroundColor": "#ffffff",
+  "textColor": "#3d3d3d",
+  "gallery": [
+   {
+    "src": "img/mwxlqje2/dec90d7f-a605-4c72-8695-9182ffae4f42.gif",
+    "alt": "",
+    "file": 0,
+    "width": 309,
+    "height": 309
+   },
+   {
+    "src": "img/mwxlqje2/08315608-611b-45cf-8781-a7e075d1669b.png",
+    "alt": "",
+    "file": 0,
+    "width": 1254,
+    "height": 1254
+   },
+   {
+    "src": "img/mwxlqje2/f747b83b-f3cf-4909-add6-27dddf61d80a.png",
+    "alt": "",
+    "file": 0,
+    "width": 1122,
+    "height": 1402
+   },
+   {
+    "src": "img/mwxlqje2/bdf7244d-8635-46dc-9029-fafe73fc0244.png",
+    "alt": "",
+    "file": 0,
+    "width": 1122,
+    "height": 1402
+   }
+  ],
+  "logo": "img/mwxlqje2/2119e819-0362-4259-b3f3-8afcbfff0014.png",
+  "shots": [],
+  "features": []
+ },
+ {
+  "id": "design-template-2",
+  "name": "motion design p.1",
+  "type": "",
+  "created": "",
+  "stack": "",
+  "platforms": "",
+  "link": "",
+  "pwa": "",
+  "device": "phone",
+  "folder": "1",
+  "description": "Для разработки gif использовалась следующая связка: \n1. Покадровая генерация на chtgpt 5.6\n2. Генерация gif для каждого кадра через chtgpt 5.6\n3. Склейка через capcut\n4. Апскейл через claude opus",
+  "descriptionHeading": "lego man is work hard",
+  "section": "design",
+  "textColor": "#e9f53d",
+  "gallery": [
+   {
+    "src": "img/design-template-2/bd66ce85-603d-4ae2-99a2-3df461a104df.mp4",
+    "alt": "",
+    "file": 0,
+    "width": 1444,
+    "height": 1080
+   }
+  ],
+  "logo": "img/design-template-2/c8adc535-7202-4571-9e39-a53823a3e0ca.png",
+  "shots": [],
+  "features": []
+ },
+ {
+  "id": "design-template-1",
+  "name": "thinkinbrain - идейник",
+  "type": "",
+  "created": "",
+  "stack": "",
+  "platforms": "",
+  "link": "",
+  "pwa": "",
+  "device": "phone",
+  "folder": "1",
+  "description": "Thinkinbrain — идейник для мыслей, которые приходят в самый неожиданный момент. Открываешь приложение, записываешь идею в пару строк и возвращаешься к ней позже, когда есть время её развить. Разрабатывал приложения для максимального удобства при записи текста. Есть возможность записать текст с помощью микрофона. Так же проработано взаимодействие с человеком через визуальную составляющую.",
+  "descriptionHeading": "",
+  "section": "design",
+  "backgroundColor": "#000000",
+  "titleColor": "#ffffff",
+  "descriptionColor": "#363636",
+  "gallery": [
+   {
+    "src": "img/design-template-1/aff0d86a-08ba-4af7-97dd-05a1da0585a2.gif",
+    "alt": "",
+    "file": 0,
+    "width": 448,
+    "height": 448
+   },
+   {
+    "src": "img/design-template-1/f34c6efd-a2f6-4e93-a653-80146479276f.png",
+    "alt": "",
+    "file": 0,
+    "width": 1254,
+    "height": 1254
+   },
+   {
+    "src": "img/design-template-1/1qe4p8zf.gif",
+    "alt": "",
+    "file": 0,
+    "width": 900,
+    "height": 900
+   },
+   {
+    "src": "img/design-template-1/qlv0txjg.gif",
+    "alt": "",
+    "file": 0,
+    "width": 900,
+    "height": 900
+   },
+   {
+    "src": "img/design-template-1/6x3mcpdv.gif",
+    "alt": "",
+    "file": 0,
+    "width": 900,
+    "height": 900
+   }
+  ],
+  "logo": "img/design-template-1/34311c39-e8b8-40dc-aa8c-c5ebb6bd9f83.png",
+  "shots": [],
+  "features": []
+ },
+ {
   "id": "mwxw7jji",
   "name": "tempt - магазин",
   "type": "",
@@ -373,160 +509,6 @@ window.CUSTOM=[
    }
   ],
   "logo": "img/mwxlrpu6/0c21c856-5fa9-4d4c-ad33-db1dc332415e.png",
-  "shots": [],
-  "features": []
- },
- {
-  "id": "design-template-1",
-  "name": "thinkinbrain - идейник",
-  "type": "",
-  "created": "",
-  "stack": "",
-  "platforms": "",
-  "link": "",
-  "pwa": "",
-  "device": "phone",
-  "folder": "1",
-  "description": "Thinkinbrain — идейник для мыслей, которые приходят в самый неожиданный момент. Открываешь приложение, записываешь идею в пару строк и возвращаешься к ней позже, когда есть время её развить. Разрабатывал приложения для максимального удобства при записи текста. Есть возможность записать текст с помощью микрофона. Так же проработано взаимодействие с человеком через визуальную составляющую.",
-  "descriptionHeading": "",
-  "section": "design",
-  "backgroundColor": "#000000",
-  "titleColor": "#ffffff",
-  "descriptionColor": "#363636",
-  "gallery": [
-   {
-    "src": "img/design-template-1/aff0d86a-08ba-4af7-97dd-05a1da0585a2.gif",
-    "alt": "",
-    "file": 0,
-    "width": 448,
-    "height": 448
-   },
-   {
-    "src": "img/design-template-1/f34c6efd-a2f6-4e93-a653-80146479276f.png",
-    "alt": "",
-    "file": 0,
-    "width": 1254,
-    "height": 1254
-   },
-   {
-    "src": "img/design-template-1/1qe4p8zf.gif",
-    "alt": "",
-    "file": 0,
-    "width": 900,
-    "height": 900
-   },
-   {
-    "src": "img/design-template-1/qlv0txjg.gif",
-    "alt": "",
-    "file": 0,
-    "width": 900,
-    "height": 900
-   },
-   {
-    "src": "img/design-template-1/6x3mcpdv.gif",
-    "alt": "",
-    "file": 0,
-    "width": 900,
-    "height": 900
-   }
-  ],
-  "logo": "img/design-template-1/34311c39-e8b8-40dc-aa8c-c5ebb6bd9f83.png",
-  "shots": [],
-  "features": []
- },
- {
-  "id": "design-template-2",
-  "name": "motion design p.1",
-  "type": "",
-  "created": "",
-  "stack": "",
-  "platforms": "",
-  "link": "",
-  "pwa": "",
-  "device": "phone",
-  "folder": "1",
-  "description": "Для разработки gif использовалась следующая связка: \n1. Покадровая генерация на chtgpt 5.6\n2. Генерация gif для каждого кадра через chtgpt 5.6\n3. Склейка через capcut\n4. Апскейл через claude opus",
-  "descriptionHeading": "lego man is work hard",
-  "section": "design",
-  "textColor": "#e9f53d",
-  "gallery": [
-   {
-    "src": "img/design-template-2/bd66ce85-603d-4ae2-99a2-3df461a104df.mp4",
-    "alt": "",
-    "file": 0,
-    "width": 1444,
-    "height": 1080
-   }
-  ],
-  "logo": "img/design-template-2/c8adc535-7202-4571-9e39-a53823a3e0ca.png",
-  "shots": [],
-  "features": []
- },
- {
-  "id": "design-template-3",
-  "name": "motion design p.2",
-  "type": "",
-  "created": "",
-  "stack": "",
-  "platforms": "",
-  "link": "",
-  "pwa": "",
-  "device": "phone",
-  "folder": "1",
-  "description": "",
-  "descriptionHeading": "",
-  "section": "design",
-  "gallery": [],
-  "shots": [],
-  "features": []
- },
- {
-  "id": "mwxlqje2",
-  "name": "branding p.1",
-  "type": "",
-  "created": "",
-  "stack": "",
-  "platforms": "",
-  "link": "",
-  "pwa": "",
-  "device": "phone",
-  "folder": "1",
-  "description": "Для manlys я хотел сделать образ, который цепляет ещё до того, как человек начнёт рассматривать саму сумку. Нарисовал тонкий рукописный логотип, похожий на личную подпись, и орнаментальную монограмму M, которую можно использовать отдельно от названия. В брендбуке показал её построение на фактурной бумаге — хотелось, чтобы у бренда чувствовался свой почерк. На сумке сделал тиснение и показал его крупным планом, чтобы через изображение передать фактуру кожи и внимание к деталям. Для рекламы придумал сцену: девушка подходит, забирает сумку и убегает — простой сюжет, который добавляет характер и движение. Всё это собирал вокруг одной задачи: заинтересовать человека, вызвать желание рассмотреть вещь поближе и помочь запомнить manlys",
-  "descriptionHeading": "magazine bag \"manlys\"",
-  "section": "design",
-  "backgroundColor": "#ffffff",
-  "textColor": "#3d3d3d",
-  "gallery": [
-   {
-    "src": "img/mwxlqje2/dec90d7f-a605-4c72-8695-9182ffae4f42.gif",
-    "alt": "",
-    "file": 0,
-    "width": 309,
-    "height": 309
-   },
-   {
-    "src": "img/mwxlqje2/08315608-611b-45cf-8781-a7e075d1669b.png",
-    "alt": "",
-    "file": 0,
-    "width": 1254,
-    "height": 1254
-   },
-   {
-    "src": "img/mwxlqje2/f747b83b-f3cf-4909-add6-27dddf61d80a.png",
-    "alt": "",
-    "file": 0,
-    "width": 1122,
-    "height": 1402
-   },
-   {
-    "src": "img/mwxlqje2/bdf7244d-8635-46dc-9029-fafe73fc0244.png",
-    "alt": "",
-    "file": 0,
-    "width": 1122,
-    "height": 1402
-   }
-  ],
-  "logo": "img/mwxlqje2/2119e819-0362-4259-b3f3-8afcbfff0014.png",
   "shots": [],
   "features": []
  }
