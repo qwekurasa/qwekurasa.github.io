@@ -113,29 +113,28 @@ body[data-v=project]{background:#fff}
 @media(max-width:1799px){.st.pad{grid-template-columns:minmax(0,520px) minmax(0,520px);justify-content:center;align-items:start;column-gap:40px}.st.pad .st-phone{grid-area:1/1/2/3;width:min(900px,96vw);margin:0 0 20px}.st.pad>.st-fdw{grid-area:2/1;justify-self:center}.st.pad .st-desk{grid-area:2/2;max-width:none}}
 @media(max-width:1079px){.st.pad{grid-template-columns:minmax(0,620px)}.st.pad>.st-fdw{grid-area:3/1;padding:0}.st.pad .st-desk{grid-area:2/1;justify-self:center;width:100%}.st.pad .st-phone{grid-area:1/1}}
 .st-phone:empty{display:none}
-.interaction-hint{display:inline-flex;align-items:center;margin:0;padding:7px 10px;border:1px solid #535357;border-radius:6px;background:#202023;box-shadow:0 4px 12px #0008;color:#dedee2;font:600 12px/1.35 var(--sans);white-space:nowrap;text-align:left;transition:opacity .3s,border-color .2s}
+.interaction-hint{display:inline-flex;align-items:center;margin:0;padding:7px 10px;border:1px solid #535357;border-radius:6px;background:#202023;box-shadow:0 4px 12px #0008;color:#dedee2;font:600 12px/1.35 var(--sans);white-space:nowrap;text-align:left}
 .hint-arrow{position:absolute;bottom:calc(100% + 2px);left:var(--hint-arrow-left,10px);color:#b3b3ba;font:20px/1 var(--sans)}
-.hint-letter{position:relative;display:inline-block}
-.hint-accessible{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-@media(prefers-reduced-motion:no-preference){
- .interaction-hint[data-revealed] .hint-glyph{animation:hint-letter-in .22s steps(1,end) var(--delay) both}
- .interaction-hint[data-revealed] .hint-letter::before{content:"0";position:absolute;inset:0;color:#82828b;text-align:center;animation:hint-bits .22s linear var(--delay) both}
- .interaction-hint[data-revealed] .hint-arrow{animation:hint-arrow-in .24s ease-out 1.62s both}
- @keyframes hint-letter-in{from{opacity:0}to{opacity:1}}
- @keyframes hint-bits{0%,100%{opacity:0}16%,45%{content:"0";opacity:1}46%,82%{content:"1";opacity:1}}
- @keyframes hint-arrow-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-}
+.interaction-hint[data-following]{position:absolute;top:var(--hint-y);left:var(--hint-x);bottom:auto;transform:none;opacity:1;pointer-events:none}
+.interaction-hint[data-following] .hint-arrow{left:10px;scale:var(--arrow-x,1) var(--arrow-y,1)}
+.interaction-hint[data-following][data-flip-x] .hint-arrow{left:auto;right:10px;--arrow-x:-1}
+.interaction-hint[data-following][data-flip-y] .hint-arrow{top:calc(100% + 2px);bottom:auto;--arrow-y:-1}
 .interaction-hint .hint-touch{display:none}
 @media(pointer:coarse){
  .interaction-hint .hint-mouse{display:none}
  .interaction-hint .hint-touch{display:inline}
 }
 .device-frame{position:relative}
-.device-hint{position:absolute;z-index:1;top:59%;left:5%;transform:translateX(-27%);filter:invert(1);--hint-arrow-left:36%}
+.device-hint{position:absolute;z-index:1;top:59%;left:5%;transform:translateX(-27%);filter:invert(1);--hint-arrow-left:36%;opacity:0;pointer-events:none}
 .device-hint-tablet{top:auto;bottom:10%;left:7%;transform:translateX(-16%);pointer-events:none;--hint-arrow-left:27%}
-button.device-hint:hover,button.device-hint:focus-visible{border-color:#929297;background:#29292b}
+.device-hint:not([data-following]) .hint-arrow{scale:-1 1}
+button.device-hint:focus-visible{border-color:#929297;background:#29292b;opacity:1}
+@media(hover:none){
+ .device-hint{opacity:1}
+ button.device-hint{pointer-events:auto}
+ .device-frame:has(.pd-web:focus) .device-hint{opacity:.45}
+}
 .device-frame:has(.ph-app.open) .device-hint{visibility:hidden;opacity:0}
-.device-frame:has(.pd-web:focus) .device-hint{opacity:.45}
 .ph{position:relative;width:100%;aspect-ratio:430/880;filter:invert(1)}
 .ph-body{position:absolute;inset:0;width:100%;height:100%}
 .st-phone{z-index:60}.st-phone .ph{cursor:grab;touch-action:none}.st-phone .ph.drag{cursor:grabbing}.st-phone .ph-scr,.st-phone .pd-scr{cursor:auto;touch-action:auto}
@@ -435,7 +434,14 @@ body[data-v=index]{background:#fff}
 .design-header{display:grid;grid-template-columns:minmax(96px,1fr) minmax(0,2fr) minmax(96px,1fr);align-items:center;margin-bottom:24px}
 .design-title{display:flex;justify-content:center;align-items:center;gap:.55em;margin:0;text-align:center;overflow-wrap:anywhere;font-size:clamp(11px,1vw,13px);font-weight:500;line-height:1.4;color:var(--project-title,var(--project-text,#e5e5ea))}
 .design-title-logo{display:block;flex:none;width:auto;height:2em;max-width:6em;object-fit:contain}
-.design-carousel{width:100%;margin:0 auto 30px}
+.design-carousel{position:relative;width:100%;margin:0 auto 30px}
+.gallery-hint{position:absolute;z-index:1;bottom:0;left:50%;transform:translateX(-50%);opacity:0;pointer-events:none}
+.design-carousel:has(.design-carousel-stage:focus-visible,.design-slide:focus-visible) .gallery-hint{opacity:1}
+.design-carousel:has(dialog[open],.is-dragging) .gallery-hint{opacity:0}
+@media(hover:none){
+ .gallery-hint{position:relative;opacity:1;margin-top:10px;white-space:normal}
+ .gallery-hint .hint-arrow{display:none}
+}
 .design-carousel-stage{position:relative;height:clamp(220px,48vw,460px);overflow:visible;isolation:isolate;perspective:900px}
 .design-slide{position:absolute;inset:0;margin:auto;padding:0;display:grid;place-items:center;border:0;background:transparent;color:inherit;-webkit-tap-highlight-color:transparent}
 .design-slide[aria-hidden="true"]{pointer-events:none}
@@ -500,7 +506,7 @@ body[data-v=index]{background:#fff}
 <script src="project-cat-3d.js?v=1"></script>
 <script src="phone.js?v=baecc87"></script>
 <script src="project-sections.js?v=2"></script>
-<script src="design-carousel.js?v=8"></script>
+<script src="design-carousel.js?v=9"></script>
 <script src="case-files.js?v=five-per-row"></script>
 <script>
 const $=s=>document.querySelector(s);
@@ -603,28 +609,32 @@ function renderDesignProject(project){
   window.ProjectCat?.mount(host);
   disposeDesignCarousel=window.DesignCarousel.mount(host.querySelector('.design-carousel'),project.gallery);
 }
-function revealInteractionHint(hint){
-  for(const copy of hint.querySelectorAll('.hint-copy')){
-    const text=copy.textContent;
-    const accessible=document.createElement('span');
-    accessible.className='hint-accessible';
-    accessible.textContent=text;
-    const animated=document.createElement('span');
-    animated.setAttribute('aria-hidden','true');
-    const letters=Array.from(text);
-    letters.forEach((char,index)=>{
-      if(char===' '){animated.append(' ');return;}
-      const letter=document.createElement('span'),glyph=document.createElement('span');
-      letter.className='hint-letter';
-      glyph.className='hint-glyph';
-      glyph.textContent=char;
-      letter.style.setProperty('--delay',(1360*index/Math.max(1,letters.length-1))+'ms');
-      letter.append(glyph);
-      animated.append(letter);
+function trackInteractionHint(target,hint,anchor,hitTest=()=>true){
+  let frame=0;
+  const clear=()=>{
+    cancelAnimationFrame(frame);
+    hint.removeAttribute('data-following');
+  };
+  target.addEventListener('pointermove',event=>{
+    if(event.pointerType==='touch'||event.pointerType==='')return;
+    cancelAnimationFrame(frame);
+    frame=requestAnimationFrame(()=>{
+      if(!hitTest(event)){clear();return;}
+      const {clientX:x,clientY:y}=event,bounds=anchor.getBoundingClientRect();
+      const width=hint.offsetWidth,height=hint.offsetHeight;
+      const flipX=x+width+24>innerWidth,flipY=y+height+32>innerHeight;
+      const left=Math.min(innerWidth-width-8,Math.max(8,flipX?x-width-14:x+14));
+      const top=Math.min(innerHeight-height-8,Math.max(8,flipY?y-height-24:y+24));
+      hint.style.setProperty('--hint-x',(left-bounds.left)+'px');
+      hint.style.setProperty('--hint-y',(top-bounds.top)+'px');
+      hint.toggleAttribute('data-flip-x',flipX);
+      hint.toggleAttribute('data-flip-y',flipY);
+      hint.dataset.following='';
     });
-    copy.replaceChildren(accessible,animated);
-  }
-  hint.dataset.revealed='';
+  },true);
+  target.addEventListener('pointerleave',clear);
+  target.addEventListener('pointercancel',clear);
+  return clear;
 }
 function renderProject(id){
   const p=P.find(q=>q.id===id)||P[0];
@@ -642,8 +652,8 @@ function renderProject(id){
   $('#project').innerHTML=`<svg width="0" height="0" style="position:absolute"><defs><pattern id="dz" width="2" height="2" patternUnits="userSpaceOnUse"><rect width="1" height="1"/><rect x="1" y="1" width="1" height="1"/></pattern></defs></svg>
   <nav class="st-menu st-top"><a href="#map">qwekurasa</a><a href="#p-${pv.id}">← ${pv.name}</a><a href="#p-${nx.id}">${nx.name} →</a></nav>
   <div class="st">${pad&&fold?`<div class="st-fdw">${fold}</div>`:''}<aside class="st-phone"><div class="device-frame"><div id="stPhone"></div>${p.pwa?(pad?
-    '<p class="interaction-hint device-hint device-hint-tablet" id="deviceHint"><span class="hint-arrow" aria-hidden="true">↗</span><span class="hint-copy">Сайт работает внутри макета</span></p>':
-    '<button type="button" class="interaction-hint device-hint" id="deviceHint"><span class="hint-arrow" aria-hidden="true">↗</span><span class="hint-copy">Откройте приложение в iPhone</span></button>'):''}</div></aside><div class="st-desk">
+    '<p class="interaction-hint device-hint device-hint-tablet" id="deviceHint"><span class="hint-arrow" aria-hidden="true">↖</span>Сайт работает внутри макета</p>':
+    '<button type="button" class="interaction-hint device-hint" id="deviceHint"><span class="hint-arrow" aria-hidden="true">↖</span>Откройте приложение в iPhone</button>'):''}</div></aside><div class="st-desk">
     ${W('st-br','System Browser',`<div class="st-panes">
       <ul class="st-pane">${group.map(q=>`<li${q===p?' class="on"':''}><a href="#p-${q.id}">Projects-${q.name}</a></li>`).join('')}</ul>
       <ul class="st-pane">${[p.code,p.type,p.created||'—'].map((x,j)=>`<li${j===1?' class="on"':''}>${x}</li>`).join('')}<li>------------</li></ul>
@@ -657,8 +667,13 @@ function renderProject(id){
   else window.Phone?.mount($('#stPhone'),{id:p.id,pwa:p.pwa,name:p.name,icon:p.icon,screens:shots.map(w=>`<img src="${w.img}" alt="">`)});
   const deviceHint=$('#deviceHint');
   if(deviceHint){
-    revealInteractionHint(deviceHint);
-    if(pad)$('#stPhone .pd-web')?.setAttribute('aria-describedby',deviceHint.id);
+    const device=$('#stPhone'),frame=deviceHint.parentElement;
+    const embedded=pad?device.querySelector('.pd-web'):null;
+    const clearHint=trackInteractionHint(device,deviceHint,frame,event=>!embedded||event.target!==embedded);
+    if(embedded){
+      embedded.setAttribute('aria-describedby',deviceHint.id);
+      embedded.addEventListener('pointerenter',clearHint);
+    }
     else deviceHint.onclick=()=>$('#stPhone [data-app="b"]')?.click();
   }
   appendProjectDescription($('#project'),p);
@@ -775,6 +790,6 @@ function carousel(box,p){const ring=box.querySelector('.ixc-ring'),w=p.wins||[];
 })();
 </script>
 <script type="module" src="model-viewer.min.js"></script>
-<script src="hero-3d.js?v=room-10"></script>
+<script src="hero-3d.js?v=room-11"></script>
 </body>
 </html>
