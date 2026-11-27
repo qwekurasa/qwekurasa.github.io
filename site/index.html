@@ -253,6 +253,8 @@ button.device-hint:focus-visible{border-color:#929297;background:#29292b;opacity
 .st-top{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:100;filter:invert(1);flex-wrap:nowrap;max-width:calc(100vw - 24px);white-space:nowrap;color:#f2f2f7;background:#1c1c1e;border:1px solid #2c2c2e!important;border-radius:6px;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .st-top a{border-right-color:#2c2c2e!important}
 .st-top a{overflow:hidden;text-overflow:ellipsis;max-width:40vw}
+.st-top .st-all-projects{flex:none;max-width:none}
+@media(max-width:520px){.st-top a{padding-inline:8px}}
 body:not([data-v=project]) .st-top{display:none}
 #project .st{padding-top:56px}
 .st-panes{border-bottom:1px solid rgba(255,255,255,.08);height:auto;min-height:168px}
@@ -643,7 +645,10 @@ function renderProject(id){
     ${shots.slice(0,fk).map((w,k)=>`<button class="fd-f" data-k="${k}" style="--i:${k-(fk-1)/2};--d:${k*45}ms" aria-label="${w.h||'Экран '+(k+1)}"><img src="${w.img}" alt="" loading="lazy" draggable="false"></button>`).join('')}
     <div class="fd-fr"><b>${p.name}</b><span>${shots.length} ${shots.length%10===1&&shots.length%100!==11?'экран':shots.length%10>=2&&shots.length%10<=4&&(shots.length%100<10||shots.length%100>=20)?'экрана':'экранов'}</span><i aria-hidden="true">↗</i></div></div>`:'';
   $('#project').innerHTML=`<svg width="0" height="0" style="position:absolute"><defs><pattern id="dz" width="2" height="2" patternUnits="userSpaceOnUse"><rect width="1" height="1"/><rect x="1" y="1" width="1" height="1"/></pattern></defs></svg>
-  <nav class="st-menu st-top"><a href="#map">qwekurasa</a><a href="#p-${pv.id}">← ${pv.name}</a><a href="#p-${nx.id}">${nx.name} →</a></nav>
+  <nav class="st-menu st-top" aria-label="Навигация по проектам">
+    <a href="#map">qwekurasa</a><a class="st-all-projects" href="#index">Все проекты</a>
+    <a href="#p-${pv.id}">← ${pv.name}</a><a href="#p-${nx.id}">${nx.name} →</a>
+  </nav>
   <div class="st">${pad&&fold?`<div class="st-fdw">${fold}</div>`:''}<aside class="st-phone"><div class="device-frame"><div id="stPhone"></div>${p.pwa?(pad?
     '<p class="interaction-hint device-hint device-hint-tablet" id="deviceHint"><span class="hint-arrow" aria-hidden="true">↖</span>Сайт работает внутри макета</p>':
     '<button type="button" class="interaction-hint device-hint" id="deviceHint"><span class="hint-arrow" aria-hidden="true">↖</span>Откройте приложение в iPhone</button>'):''}</div></aside><div class="st-desk">
