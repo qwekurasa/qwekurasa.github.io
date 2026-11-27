@@ -482,7 +482,7 @@ window.CUSTOM=[
  },
  {
   "id": "mwxlqje2",
-  "name": "poster p.1",
+  "name": "branding p.1",
   "type": "",
   "created": "",
   "stack": "",
@@ -492,7 +492,7 @@ window.CUSTOM=[
   "device": "phone",
   "folder": "1",
   "description": "",
-  "descriptionHeading": "",
+  "descriptionHeading": "magazine bag \"manlys\"",
   "section": "design",
   "gallery": [],
   "shots": [],
