@@ -5,8 +5,14 @@
  const wrap=document.createElement('div');wrap.className='home-model';
  wrap.innerHTML='<model-viewer id="deskModel" tabindex="0" src="desk-scan.glb" alt="3D-скан рабочего места Артёма. Нажмите на модель, чтобы открыть проекты. Перетаскивайте для вращения." camera-controls rotation-per-second="4deg" auto-rotate-delay="1500" disable-pan disable-tap camera-orbit="25deg 72deg auto" field-of-view="32deg" min-camera-orbit="auto 20deg 65%" max-camera-orbit="auto 105deg 200%" exposure="1" shadow-intensity="0" environment-image="neutral" interaction-prompt="none" loading="eager" reveal="auto"><span slot="progress-bar" class="model-loading">Загрузка 3D…</span></model-viewer><p class="model-error" hidden>Не удалось загрузить 3D. <a href="#index">Открыть проекты</a></p>';
  host.prepend(wrap);const viewer=wrap.querySelector('model-viewer');
+ const hint=document.createElement('p');
+ hint.id='modelRotationHint';hint.className='interaction-hint home-rotation-hint';
+ hint.innerHTML='<span aria-hidden="true">↔</span><span class="hint-mouse">Потяните модель для поворота</span><span class="hint-touch">Проведите пальцем для поворота</span>';
+ viewer.setAttribute('aria-describedby',hint.id);
+ wrap.append(hint);
  const doll=document.createElement('model-viewer');doll.id='artemDoll';
  doll.setAttribute('src','artem-doll.glb');doll.setAttribute('alt','Фигурка Артёма в коричневой рубашке');
+ doll.setAttribute('aria-describedby',hint.id);
  for(const [key,value] of Object.entries({'camera-controls':'','disable-pan':'','disable-tap':'','camera-orbit':'0deg 90deg auto','field-of-view':'30deg','interaction-prompt':'none','environment-image':'neutral','exposure':'1','shadow-intensity':'0','loading':'eager'}))doll.setAttribute(key,value);
  wrap.append(doll);
  doll.addEventListener('load',()=>{doll.model.materials.forEach(m=>{m.pbrMetallicRoughness.setMetallicFactor(0);m.pbrMetallicRoughness.setRoughnessFactor(.85);});doll.exposure=1.3;import('./doll-motion.js?v=3').then(m=>m.start(doll,card)).catch(()=>{doll.dataset.surfaceReady='true';});});
@@ -17,6 +23,8 @@
  .home-model model-viewer:not([data-surface-ready]){visibility:hidden}
  .home-model #deskModel{position:absolute;left:22%;width:78%;height:100%}
  .home-model #artemDoll{position:absolute;left:0;top:23%;width:27%;height:clamp(15%,calc(50svh + 27% - 168px),58%)}
+ .home-rotation-hint{position:absolute;top:0;left:61%;transform:translateX(-50%);opacity:0;pointer-events:none}
+ #deskModel[data-ready="true"]:not([data-user-rotated])~.home-rotation-hint{opacity:1}
  .model-loading{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:12px var(--sans);color:#888}
  .model-error{position:absolute;left:0;right:0;top:48%;text-align:center;font-size:13px}.model-error a{text-decoration:underline}
  @media(max-width:700px){.home-model{width:100vw;height:70svh}}
@@ -151,6 +159,11 @@
   if(Math.hypot(e.clientX-p.x,e.clientY-p.y)<=7&&viewer.positionAndNormalFromPoint(e.clientX,e.clientY))openProjects();
  },true);
  viewer.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);press=null;},true);
+ const rememberRotation=e=>{
+  if(e.detail?.source==='user-interaction')viewer.dataset.userRotated='true';
+ };
+ viewer.addEventListener('camera-change',rememberRotation);
+ doll.addEventListener('camera-change',rememberRotation);
  viewer.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&viewer.dataset.ready==='true'){e.preventDefault();openProjects();}});
  addEventListener('hashchange',()=>{
   const v=document.body.dataset.v;

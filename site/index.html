@@ -113,6 +113,18 @@ body[data-v=project]{background:#fff}
 @media(max-width:1799px){.st.pad{grid-template-columns:minmax(0,520px) minmax(0,520px);justify-content:center;align-items:start;column-gap:40px}.st.pad .st-phone{grid-area:1/1/2/3;width:min(900px,96vw);margin:0 0 20px}.st.pad>.st-fdw{grid-area:2/1;justify-self:center}.st.pad .st-desk{grid-area:2/2;max-width:none}}
 @media(max-width:1079px){.st.pad{grid-template-columns:minmax(0,620px)}.st.pad>.st-fdw{grid-area:3/1;padding:0}.st.pad .st-desk{grid-area:2/1;justify-self:center;width:100%}.st.pad .st-phone{grid-area:1/1}}
 .st-phone:empty{display:none}
+.interaction-hint{display:inline-flex;align-items:center;gap:6px;margin:0;padding:4px 8px;border:1px solid #262626;border-radius:6px;background:#151515;color:#a0a0a0;font:11px/1.3 var(--sans);white-space:nowrap;text-align:center;transition:opacity .3s}
+.interaction-hint [aria-hidden]{color:#777}
+.interaction-hint .hint-touch{display:none}
+@media(pointer:coarse){
+ .interaction-hint .hint-mouse{display:none}
+ .interaction-hint .hint-touch{display:inline}
+}
+.device-frame{position:relative}
+.device-hint{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);filter:invert(1)}
+button.device-hint:hover,button.device-hint:focus-visible{background:#222;color:#ddd}
+.device-frame:has(.ph-app.open) .device-hint{visibility:hidden;opacity:0}
+.device-frame:has(.pd-web:focus) .device-hint{opacity:.45}
 .ph{position:relative;width:100%;aspect-ratio:430/880;filter:invert(1)}
 .ph-body{position:absolute;inset:0;width:100%;height:100%}
 .st-phone{z-index:60}.st-phone .ph{cursor:grab;touch-action:none}.st-phone .ph.drag{cursor:grabbing}.st-phone .ph-scr,.st-phone .pd-scr{cursor:auto;touch-action:auto}
@@ -595,7 +607,9 @@ function renderProject(id){
     <div class="fd-fr"><b>${p.name}</b><span>${shots.length} ${shots.length%10===1&&shots.length%100!==11?'экран':shots.length%10>=2&&shots.length%10<=4&&(shots.length%100<10||shots.length%100>=20)?'экрана':'экранов'}</span><i aria-hidden="true">↗</i></div></div>`:'';
   $('#project').innerHTML=`<svg width="0" height="0" style="position:absolute"><defs><pattern id="dz" width="2" height="2" patternUnits="userSpaceOnUse"><rect width="1" height="1"/><rect x="1" y="1" width="1" height="1"/></pattern></defs></svg>
   <nav class="st-menu st-top"><a href="#map">qwekurasa</a><a href="#p-${pv.id}">← ${pv.name}</a><a href="#p-${nx.id}">${nx.name} →</a></nav>
-  <div class="st">${pad&&fold?`<div class="st-fdw">${fold}</div>`:''}<aside class="st-phone"><div id="stPhone"></div></aside><div class="st-desk">
+  <div class="st">${pad&&fold?`<div class="st-fdw">${fold}</div>`:''}<aside class="st-phone"><div class="device-frame"><div id="stPhone"></div>${p.pwa?(pad?
+    '<p class="interaction-hint device-hint" id="deviceHint"><span aria-hidden="true">↗</span> Сайт работает внутри макета</p>':
+    '<button type="button" class="interaction-hint device-hint" id="deviceHint"><span aria-hidden="true">↗</span> Откройте приложение в iPhone</button>'):''}</div></aside><div class="st-desk">
     ${W('st-br','System Browser',`<div class="st-panes">
       <ul class="st-pane">${group.map(q=>`<li${q===p?' class="on"':''}><a href="#p-${q.id}">Projects-${q.name}</a></li>`).join('')}</ul>
       <ul class="st-pane">${[p.code,p.type,p.created||'—'].map((x,j)=>`<li${j===1?' class="on"':''}>${x}</li>`).join('')}<li>------------</li></ul>
@@ -607,6 +621,11 @@ function renderProject(id){
   </div></div>`;
   if(p.device==='ipad'&&p.pwa)window.Phone?.mountPad($('#stPhone'),{url:p.pwa});
   else window.Phone?.mount($('#stPhone'),{id:p.id,pwa:p.pwa,name:p.name,icon:p.icon,screens:shots.map(w=>`<img src="${w.img}" alt="">`)});
+  const deviceHint=$('#deviceHint');
+  if(deviceHint){
+    if(pad)$('#stPhone .pd-web')?.setAttribute('aria-describedby',deviceHint.id);
+    else deviceHint.onclick=()=>$('#stPhone [data-app="b"]')?.click();
+  }
   appendProjectDescription($('#project'),p);
   window.CaseFiles?.mount(p,$('#project'));
   window.ProjectCat?.mount($('#project'));
@@ -721,6 +740,6 @@ function carousel(box,p){const ring=box.querySelector('.ixc-ring'),w=p.wins||[];
 })();
 </script>
 <script type="module" src="model-viewer.min.js"></script>
-<script src="hero-3d.js?v=room-5"></script>
+<script src="hero-3d.js?v=room-6"></script>
 </body>
 </html>
