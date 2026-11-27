@@ -574,6 +574,34 @@ window.CUSTOM=[
   "logo": "img/mwxlrpu6/0c21c856-5fa9-4d4c-ad33-db1dc332415e.png",
   "shots": [],
   "features": []
+ },
+ {
+  "id": "mwz4aub8",
+  "name": "barnding p.2",
+  "type": "",
+  "created": "",
+  "stack": "",
+  "platforms": "",
+  "link": "",
+  "pwa": "",
+  "device": "phone",
+  "folder": "1",
+  "description": "",
+  "descriptionHeading": "лимонад",
+  "section": "design",
+  "backgroundColor": "#990000",
+  "textColor": "#080808",
+  "gallery": [
+   {
+    "src": "img/mwz4aub8/c46fabdd-f49e-48d3-97c1-a146f798ab37.png",
+    "alt": "",
+    "file": 0,
+    "width": 1086,
+    "height": 1448
+   }
+  ],
+  "shots": [],
+  "features": []
  }
 ];
 window.CATS=[];
